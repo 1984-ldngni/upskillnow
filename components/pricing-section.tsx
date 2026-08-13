@@ -16,7 +16,7 @@ const plans: Record<Currency, Plan[]> = {
     { name: "Pro", price: "$9/mo", blurb: "Full course library, quizzes, and AI Tutor access." },
     {
       name: "Team",
-      price: "$24.99/mo",
+      price: "$24/mo",
       blurb: "Everything in Pro, for teams of 2–4 — your 4th seat is on us.",
     },
   ],

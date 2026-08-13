@@ -40,8 +40,15 @@ export default function CoursesPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
-        <h1 className="font-heading text-3xl font-black">Courses</h1>
-        <p className="mt-2 text-muted-foreground">Modular, step-by-step tracks by skill level.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-heading text-3xl font-black">Courses</h1>
+            <p className="mt-2 text-muted-foreground">Modular, step-by-step tracks by skill level.</p>
+          </div>
+          <Link href="/paths">
+            <Button variant="outline" size="sm">Browse Learning Paths</Button>
+          </Link>
+        </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
           <button onClick={() => setActiveLevel(null)}>

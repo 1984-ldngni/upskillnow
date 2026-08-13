@@ -20,6 +20,7 @@ export function SiteHeader() {
         <nav className="hidden items-center gap-6 text-sm font-bold uppercase tracking-tight text-foreground/70 md:flex">
           <Link href="/tools" className="hover:text-foreground">Tool Directory</Link>
           <Link href="/courses" className="hover:text-foreground">Courses</Link>
+          <Link href="/paths" className="hover:text-foreground">Paths</Link>
           <Link href="/#pricing" className="hover:text-foreground">Pricing</Link>
         </nav>
         <div className="flex items-center gap-2">

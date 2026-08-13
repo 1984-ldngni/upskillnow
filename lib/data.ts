@@ -15,6 +15,7 @@ export type Tool = {
 };
 
 export type Course = {
+  id: string;
   slug: string;
   title: string;
   level: string;
@@ -22,7 +23,7 @@ export type Course = {
   toolSlug: string | null;
 };
 
-export type Lesson = { title: string; duration: string; isPremium: boolean };
+export type Lesson = { id: string; title: string; duration: string; isPremium: boolean };
 
 export type QuizQuestion = { question: string; options: string[]; answerIndex: number };
 
@@ -61,7 +62,7 @@ export async function getCourses(): Promise<Course[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("courses")
-    .select("slug, title, level, description, tool_slug")
+    .select("id, slug, title, level, description, tool_slug")
     .order("title");
 
   if (error || !data) {
@@ -69,6 +70,7 @@ export async function getCourses(): Promise<Course[]> {
     return [];
   }
   return data.map((c: any) => ({
+    id: c.id,
     slug: c.slug,
     title: c.title,
     level: c.level,
@@ -81,7 +83,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("courses")
-    .select("slug, title, level, description, tool_slug")
+    .select("id, slug, title, level, description, tool_slug")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -90,6 +92,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     return null;
   }
   return {
+    id: data.id,
     slug: data.slug,
     title: data.title,
     level: data.level,
@@ -102,12 +105,13 @@ export async function getCourseByToolSlug(toolSlug: string): Promise<Course | nu
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("courses")
-    .select("slug, title, level, description, tool_slug")
+    .select("id, slug, title, level, description, tool_slug")
     .eq("tool_slug", toolSlug)
     .maybeSingle();
 
   if (error || !data) return null;
   return {
+    id: data.id,
     slug: data.slug,
     title: data.title,
     level: data.level,
@@ -120,7 +124,7 @@ export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("title, duration, position, is_premium, courses!inner(slug)")
+    .select("id, title, duration, position, is_premium, courses!inner(slug)")
     .eq("courses.slug", slug)
     .order("position");
 
@@ -128,7 +132,137 @@ export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
     if (error) logClientError(`getLessonsForCourseSlug failed: ${error.message}`, { context: { table: "lessons", slug } });
     return [];
   }
-  return data.map((l: any) => ({ title: l.title, duration: l.duration, isPremium: l.is_premium ?? false }));
+  return data.map((l: any) => ({ id: l.id, title: l.title, duration: l.duration, isPremium: l.is_premium ?? false }));
+}
+
+// --- Progress tracking: lesson completions, quiz attempts, certificates.
+// All scoped to the current signed-in user via RLS ("Users manage own ...").
+
+const PASSING_SCORE_RATIO = 0.6;
+
+export async function getCompletedLessonIds(): Promise<Set<string>> {
+  const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return new Set();
+
+  const { data, error } = await supabase
+    .from("lesson_completions")
+    .select("lesson_id")
+    .eq("user_id", user.id);
+
+  if (error || !data) return new Set();
+  return new Set(data.map((r: any) => r.lesson_id as string));
+}
+
+export async function setLessonComplete(lessonId: string, completed: boolean): Promise<void> {
+  const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  if (completed) {
+    await supabase
+      .from("lesson_completions")
+      .upsert({ user_id: user.id, lesson_id: lessonId }, { onConflict: "user_id,lesson_id" });
+  } else {
+    await supabase
+      .from("lesson_completions")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("lesson_id", lessonId);
+  }
+}
+
+export type QuizAttempt = { score: number; total: number; completedAt: string };
+
+export async function saveQuizAttempt(courseId: string, score: number, total: number): Promise<void> {
+  const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase.from("quiz_attempts").insert({ user_id: user.id, course_id: courseId, score, total });
+}
+
+export async function getBestQuizAttempt(courseId: string): Promise<QuizAttempt | null> {
+  const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("quiz_attempts")
+    .select("score, total, completed_at")
+    .eq("user_id", user.id)
+    .eq("course_id", courseId)
+    .order("score", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return { score: data.score, total: data.total, completedAt: data.completed_at };
+}
+
+export function isQuizPassed(attempt: QuizAttempt | null): boolean {
+  if (!attempt || attempt.total === 0) return false;
+  return attempt.score / attempt.total >= PASSING_SCORE_RATIO;
+}
+
+export type CourseProgress = Course & {
+  totalFreeLessons: number;
+  completedFreeLessons: number;
+  quizPassed: boolean;
+  certificateEarned: boolean;
+};
+
+export async function getCoursesWithProgress(): Promise<CourseProgress[]> {
+  const supabase = getSupabaseClient();
+  const courses = await getCourses();
+  if (courses.length === 0) return [];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data: lessons }, completedIds, { data: attempts }] = await Promise.all([
+    supabase
+      .from("lessons")
+      .select("id, course_id, is_premium")
+      .in(
+        "course_id",
+        courses.map((c) => c.id)
+      ),
+    getCompletedLessonIds(),
+    user
+      ? supabase.from("quiz_attempts").select("course_id, score, total").eq("user_id", user.id)
+      : Promise.resolve({ data: [] as any[] }),
+  ]);
+
+  const bestByCourse = new Map<string, { score: number; total: number }>();
+  for (const a of attempts ?? []) {
+    const existing = bestByCourse.get(a.course_id);
+    if (!existing || a.score > existing.score) bestByCourse.set(a.course_id, { score: a.score, total: a.total });
+  }
+
+  return courses.map((c) => {
+    const courseLessons = (lessons ?? []).filter((l: any) => l.course_id === c.id);
+    const freeLessons = courseLessons.filter((l: any) => !l.is_premium);
+    const completedFreeLessons = freeLessons.filter((l: any) => completedIds.has(l.id)).length;
+    const attempt = bestByCourse.get(c.id) ?? null;
+    const quizPassed = attempt ? attempt.score / attempt.total >= PASSING_SCORE_RATIO : false;
+    return {
+      ...c,
+      totalFreeLessons: freeLessons.length,
+      completedFreeLessons,
+      quizPassed,
+      certificateEarned: freeLessons.length > 0 && completedFreeLessons === freeLessons.length && quizPassed,
+    };
+  });
 }
 
 export async function getQuizForCourseSlug(slug: string): Promise<QuizQuestion[]> {
@@ -148,6 +282,51 @@ export async function getQuizForCourseSlug(slug: string): Promise<QuizQuestion[]
     options: q.options as string[],
     answerIndex: q.answer_index,
   }));
+}
+
+export type LearningPath = {
+  slug: string;
+  title: string;
+  description: string;
+  level: string;
+  courses: Course[];
+};
+
+export async function getLearningPaths(): Promise<LearningPath[]> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("learning_paths")
+    .select(
+      "slug, title, description, level, learning_path_courses(position, courses(id, slug, title, level, description, tool_slug))"
+    )
+    .order("title");
+
+  if (error || !data) {
+    if (error) logClientError(`getLearningPaths failed: ${error.message}`, { context: { table: "learning_paths" } });
+    return [];
+  }
+
+  return data.map((p: any) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    level: p.level,
+    courses: (p.learning_path_courses ?? [])
+      .sort((a: any, b: any) => a.position - b.position)
+      .map((lpc: any) => ({
+        id: lpc.courses.id,
+        slug: lpc.courses.slug,
+        title: lpc.courses.title,
+        level: lpc.courses.level,
+        description: lpc.courses.description,
+        toolSlug: lpc.courses.tool_slug ?? null,
+      })),
+  }));
+}
+
+export async function getLearningPathBySlug(slug: string): Promise<LearningPath | null> {
+  const paths = await getLearningPaths();
+  return paths.find((p) => p.slug === slug) ?? null;
 }
 
 // --- Admin-only data. RLS enforces that only rows the caller is actually

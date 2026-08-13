@@ -6,13 +6,15 @@ import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getCourses, getTools, type Course, type Tool } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
+import { getCoursesWithProgress, getTools, type CourseProgress, type Tool } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { Award } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { loading: authLoading, userId, isAdmin } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
@@ -26,7 +28,7 @@ export default function DashboardPage() {
       router.push("/admin");
       return;
     }
-    Promise.all([getCourses(), getTools()]).then(([c, t]) => {
+    Promise.all([getCoursesWithProgress(), getTools()]).then(([c, t]) => {
       setCourses(c);
       setTools(t);
       setDataLoading(false);
@@ -75,19 +77,46 @@ export default function DashboardPage() {
             <Link href="/courses" className="text-sm font-medium text-primary">View all</Link>
           </div>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {courses.map((c) => (
-              <Card key={c.slug}>
-                <CardHeader>
-                  <CardTitle className="text-base">{c.title}</CardTitle>
-                  <CardDescription>{c.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href={`/courses/${c.slug}`}>
-                    <Button size="sm">Resume</Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
+            {courses.map((c) => {
+              const pct = c.totalFreeLessons > 0
+                ? Math.round((c.completedFreeLessons / c.totalFreeLessons) * 100)
+                : 0;
+              return (
+                <Card key={c.slug}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{c.title}</CardTitle>
+                      {c.certificateEarned && <Badge variant="green">Certified</Badge>}
+                    </div>
+                    <CardDescription>{c.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{c.completedFreeLessons} / {c.totalFreeLessons} lessons</span>
+                        <span>{pct}%</span>
+                      </div>
+                      <div className="mt-1 h-2 w-full overflow-hidden rounded-full border-2 border-black bg-secondary">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Link href={`/courses/${c.slug}`}>
+                        <Button size="sm">{pct > 0 ? "Resume" : "Start"}</Button>
+                      </Link>
+                      {c.certificateEarned && (
+                        <Link href={`/certificate/${c.slug}`}>
+                          <Button size="sm" variant="outline">
+                            <Award className="mr-1 h-3.5 w-3.5" />
+                            Certificate
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
 

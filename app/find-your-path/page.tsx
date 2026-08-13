@@ -39,6 +39,30 @@ const QUESTIONS: QuizQuestion[] = [
       { label: "Midjourney or Cursor", path: "ai-creative-technical-toolkit" },
     ],
   },
+  {
+    question: "How comfortable are you with technical, step-by-step tools?",
+    options: [
+      { label: "Not very — I prefer writing and communication", path: "ai-powered-executive-assistant" },
+      { label: "Comfortable enough to follow a workflow builder", path: "automation-specialist" },
+      { label: "Very comfortable — I like working in an editor or design tool", path: "ai-creative-technical-toolkit" },
+    ],
+  },
+  {
+    question: "What's your longer-term goal as a VA?",
+    options: [
+      { label: "Be the go-to person for research, scheduling, and communication", path: "ai-powered-executive-assistant" },
+      { label: "Build and offer automation systems as a service", path: "automation-specialist" },
+      { label: "Specialize in content, creative production, or light dev work", path: "ai-creative-technical-toolkit" },
+    ],
+  },
+  {
+    question: "Which project would you enjoy most?",
+    options: [
+      { label: "Organizing an executive's inbox and prepping briefing docs with AI", path: "ai-powered-executive-assistant" },
+      { label: "Connecting apps so leads flow automatically into a CRM", path: "automation-specialist" },
+      { label: "Producing a batch of on-brand social media graphics", path: "ai-creative-technical-toolkit" },
+    ],
+  },
 ];
 
 export default function FindYourPathPage() {
@@ -74,7 +98,7 @@ export default function FindYourPathPage() {
           <h1 className="font-heading text-3xl font-black">Find your path</h1>
         </div>
         <p className="mt-2 text-muted-foreground">
-          Three quick questions — we'll recommend a Learning Path to start with.
+          Six quick questions — we'll recommend a Learning Path to start with.
         </p>
 
         {!submitted && (

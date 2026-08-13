@@ -35,6 +35,14 @@ AI & automation tools) with its own course library. Building in three phases:
 - Dashboard "Continue learning" cards now show real per-course progress bars, a
   "Certified" badge, and a link to the certificate once earned.
 
+### Phase 3: Catalog filters + recommendation quiz
+- `/courses` now has a second filter row: "Time to complete" (Under 15 min /
+  15–30 min / 30+ min), computed by summing lesson durations per course.
+- `/paths` got the same level filter treatment as `/courses`, plus a link to the
+  new recommendation quiz.
+- New `/find-your-path` — a 3-question quiz that recommends one of the 3 Learning
+  Paths based on the learner's answers (no DB storage, pure client-side scoring).
+
 ---
 
 ## Earlier history (pre-changelog)

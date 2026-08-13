@@ -79,6 +79,25 @@ export async function getCourses(): Promise<Course[]> {
   }));
 }
 
+// Rough total minutes per course, summed across all lessons (free + Pro), parsed
+// from strings like "5 min". Used for the "time to complete" catalog filter.
+export async function getCourseDurationsMinutes(courseIds: string[]): Promise<Record<string, number>> {
+  if (courseIds.length === 0) return {};
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("course_id, duration")
+    .in("course_id", courseIds);
+
+  if (error || !data) return {};
+  const totals: Record<string, number> = {};
+  for (const l of data as any[]) {
+    const minutes = parseInt(String(l.duration).match(/\d+/)?.[0] ?? "0", 10);
+    totals[l.course_id] = (totals[l.course_id] ?? 0) + minutes;
+  }
+  return totals;
+}
+
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase

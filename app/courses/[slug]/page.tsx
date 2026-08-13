@@ -1,23 +1,78 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getCourseBySlug, getLessonsForCourseSlug, getQuizForCourseSlug } from "@/lib/data";
+import {
+  getCourseBySlug,
+  getLessonsForCourseSlug,
+  getQuizForCourseSlug,
+  type Course,
+  type Lesson,
+  type QuizQuestion,
+} from "@/lib/data";
+import { useAuth } from "@/lib/auth-context";
 import { PlayCircle, Lock } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export default function CourseLessonPage() {
+  const params = useParams<{ slug: string }>();
+  const router = useRouter();
+  const { loading: authLoading, userId } = useAuth();
 
-export default async function CourseLessonPage({ params }: { params: { slug: string } }) {
-  const course = await getCourseBySlug(params.slug);
-  if (!course) notFound();
+  const [course, setCourse] = useState<Course | null>(null);
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [quiz, setQuiz] = useState<QuizQuestion[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const [lessons, quiz] = await Promise.all([
-    getLessonsForCourseSlug(params.slug),
-    getQuizForCourseSlug(params.slug),
-  ]);
+  useEffect(() => {
+    if (authLoading) return;
+    if (!userId) {
+      router.push(`/auth?next=/courses/${params.slug}`);
+      return;
+    }
+    getCourseBySlug(params.slug).then((c) => {
+      if (!c) {
+        setNotFound(true);
+        setDataLoading(false);
+        return;
+      }
+      setCourse(c);
+      Promise.all([getLessonsForCourseSlug(params.slug), getQuizForCourseSlug(params.slug)]).then(
+        ([l, q]) => {
+          setLessons(l);
+          setQuiz(q);
+          setDataLoading(false);
+        }
+      );
+    });
+  }, [authLoading, userId, params.slug, router]);
+
+  if (authLoading || !userId || dataLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
+
+  if (notFound || !course) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+          <p className="text-muted-foreground">Course not found.</p>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
   const hasQuiz = quiz.length > 0;
 
   return (

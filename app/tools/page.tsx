@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getTools, type Tool } from "@/lib/data";
+import { difficultyVariant, pricingVariant } from "@/lib/badge-colors";
 
 export default function ToolsPage() {
   const [tools, setTools] = useState<Tool[]>([]);
@@ -64,13 +65,13 @@ export default function ToolsPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">{t.name}</CardTitle>
-                      <Badge variant="outline">{t.difficultyLevel}</Badge>
+                      <Badge variant={difficultyVariant(t.difficultyLevel)}>{t.difficultyLevel}</Badge>
                     </div>
                     <CardDescription>{t.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                     <Badge variant="secondary">{t.targetIndustry}</Badge>
-                    <Badge variant="secondary">{t.pricingTier}</Badge>
+                    <Badge variant={pricingVariant(t.pricingTier)}>{t.pricingTier}</Badge>
                   </CardContent>
                 </Card>
               </Link>

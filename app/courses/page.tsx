@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCourses } from "@/lib/data";
+import { difficultyVariant } from "@/lib/badge-colors";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function CoursesPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>{c.title}</CardTitle>
-                  <Badge variant="outline">{c.level}</Badge>
+                  <Badge variant={difficultyVariant(c.level)}>{c.level}</Badge>
                 </div>
                 <CardDescription>{c.description}</CardDescription>
               </CardHeader>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getTools } from "@/lib/data";
+import { difficultyVariant } from "@/lib/badge-colors";
 import { Zap, Brain, Workflow, Mic } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -66,7 +67,7 @@ export default async function LandingPage() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">{t.name}</CardTitle>
-                    <Badge variant="outline">{t.difficultyLevel}</Badge>
+                    <Badge variant={difficultyVariant(t.difficultyLevel)}>{t.difficultyLevel}</Badge>
                   </div>
                   <CardDescription>{t.description}</CardDescription>
                 </CardHeader>

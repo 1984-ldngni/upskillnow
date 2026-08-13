@@ -16,6 +16,7 @@ import {
   type CourseManagement,
 } from "@/lib/data";
 import { getRecentErrorLogs, type LoggedError } from "@/lib/error-logger";
+import { difficultyVariant } from "@/lib/badge-colors";
 import { Eye, AlertTriangle } from "lucide-react";
 
 const levelVariant: Record<LoggedError["level"], "destructive" | "accent" | "outline"> = {
@@ -107,7 +108,7 @@ export default function AdminPage() {
                         {c.lessonCount} lessons · {c.quizCount} quiz questions
                       </p>
                     </div>
-                    <Badge variant="outline">{c.level}</Badge>
+                    <Badge variant={difficultyVariant(c.level)}>{c.level}</Badge>
                   </div>
                 ))}
                 {courses.length === 0 && (

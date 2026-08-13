@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getToolBySlug } from "@/lib/data";
+import { difficultyVariant, pricingVariant } from "@/lib/badge-colors";
 
 export const dynamic = "force-dynamic";
 
@@ -29,11 +30,15 @@ export default async function ToolDetailPage({ params }: { params: { slug: strin
           </div>
           <div>
             <p className="text-muted-foreground">Level</p>
-            <p className="font-medium">{tool.difficultyLevel}</p>
+            <Badge variant={difficultyVariant(tool.difficultyLevel)} className="mt-1">
+              {tool.difficultyLevel}
+            </Badge>
           </div>
           <div>
             <p className="text-muted-foreground">Pricing</p>
-            <p className="font-medium">{tool.pricingTier}</p>
+            <Badge variant={pricingVariant(tool.pricingTier)} className="mt-1">
+              {tool.pricingTier}
+            </Badge>
           </div>
           <div>
             <p className="text-muted-foreground">Segment</p>

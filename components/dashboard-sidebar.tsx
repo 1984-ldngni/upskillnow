@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard, Wrench, BookOpen, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Wrench, BookOpen, ShieldCheck, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const baseLinks = [
@@ -20,18 +20,29 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden w-56 shrink-0 flex-col justify-between border-r-2 border-black p-4 md:flex">
-      <nav className="flex flex-col gap-1">
-        {links.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-foreground/70 hover:bg-secondary hover:text-foreground"
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </Link>
-        ))}
-      </nav>
+      <div>
+        <Link
+          href="/"
+          className="mb-4 flex items-center gap-2 rounded-md px-3 py-2 font-heading text-sm font-extrabold hover:bg-secondary"
+        >
+          <span className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-black bg-primary shadow-brutal-sm">
+            <Sparkles className="h-3 w-3 text-primary-foreground" />
+          </span>
+          UpSkillNow
+        </Link>
+        <nav className="flex flex-col gap-1">
+          {links.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-foreground/70 hover:bg-secondary hover:text-foreground"
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
       <button
         onClick={async () => {
           await signOut();

@@ -83,7 +83,7 @@ export default async function LandingPage() {
         <PricingSection defaultCurrency={defaultCurrency} />
 
         <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-          <h2 className="font-heading text-3xl font-black">Ready to upskill?</h2>
+          <h2 className="font-heading text-3xl font-black">Ready to UpSkillNow?</h2>
           <p className="mt-3 text-muted-foreground">Join now and get your personalized learning roadmap.</p>
           <Link href="/auth"><Button size="lg" className="mt-6">Get started free</Button></Link>
         </section>

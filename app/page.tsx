@@ -1,20 +1,16 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { PricingSection, type Currency } from "@/components/pricing-section";
 import { getTools } from "@/lib/data";
 import { difficultyVariant } from "@/lib/badge-colors";
 import { Zap, Brain, Workflow, Mic } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-
-const pricing = [
-  { name: "Free", price: "$0", blurb: "Explore the tool directory and one starter course." },
-  { name: "Pro", price: "$19/mo", blurb: "Full course library, quizzes, and AI Tutor access." },
-  { name: "Team", price: "$49/mo", blurb: "Everything in Pro, plus seats and progress reporting." },
-];
 
 const features = [
   { icon: Brain, title: "AI Skill Assessment", desc: "Find your gaps and get a tailored learning roadmap." },
@@ -25,6 +21,13 @@ const features = [
 
 export default async function LandingPage() {
   const tools = await getTools();
+
+  // Vercel sets this header automatically on every request at the edge — no
+  // extra geo-IP service needed. Falls back to USD if it's ever missing
+  // (local dev, or a request that didn't route through Vercel's network).
+  const country = (await headers()).get("x-vercel-ip-country");
+  const defaultCurrency: Currency = country === "PH" ? "PHP" : "USD";
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -77,23 +80,7 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-16">
-          <h2 className="text-center font-heading text-2xl font-black">Simple pricing</h2>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-            {pricing.map((p) => (
-              <Card key={p.name}>
-                <CardHeader>
-                  <CardTitle>{p.name}</CardTitle>
-                  <p className="font-heading text-3xl font-black">{p.price}</p>
-                  <CardDescription>{p.blurb}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Link href="/auth"><Button className="w-full" variant={p.name === "Pro" ? "default" : "outline"}>Choose {p.name}</Button></Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        <PricingSection defaultCurrency={defaultCurrency} />
 
         <section className="mx-auto max-w-6xl px-6 py-20 text-center">
           <h2 className="font-heading text-3xl font-black">Ready to upskill?</h2>

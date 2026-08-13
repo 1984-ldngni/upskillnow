@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { MarkdownLite } from "@/components/markdown-lite";
 import { MessageCircle, X, Send } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -77,7 +78,7 @@ export function ChatWidget() {
                     : "bg-secondary text-foreground"
                 }`}
               >
-                {m.content}
+                <MarkdownLite text={m.content} />
               </div>
             ))}
             {loading && (

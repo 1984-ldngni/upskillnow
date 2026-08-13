@@ -52,6 +52,16 @@ AI & automation tools) with its own course library. Building in three phases:
 - New `/certificate/path/[slug]` — a path-level certificate listing every course
   completed, separate from the existing per-course certificate.
 
+## 2026-08-14 — "Ask us" AI chat widget
+- Floating chat bubble (`components/chat-widget.tsx`) added to every page via
+  `app/layout.tsx`.
+- New `POST /api/chat` route: calls the Anthropic API (`claude-haiku-4-5`),
+  grounded each request in a live snapshot of the tools/courses/paths catalog
+  pulled from Supabase, so answers stay accurate as the catalog grows.
+- Requires an `ANTHROPIC_API_KEY` environment variable in Vercel — without it,
+  the widget still works but replies with a "not fully set up yet" message
+  instead of erroring.
+
 ---
 
 ## Earlier history (pre-changelog)

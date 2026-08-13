@@ -106,7 +106,7 @@ function AuthPageInner() {
                     <button
                       type="button"
                       onClick={() => setMode("signup")}
-                      className="font-bold text-primary"
+                      className="font-bold text-destructive"
                     >
                       Create a free account
                     </button>
@@ -117,7 +117,7 @@ function AuthPageInner() {
                     <button
                       type="button"
                       onClick={() => setMode("signin")}
-                      className="font-bold text-primary"
+                      className="font-bold text-destructive"
                     >
                       Sign in
                     </button>

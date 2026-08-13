@@ -348,6 +348,88 @@ export async function getLearningPathBySlug(slug: string): Promise<LearningPath 
   return paths.find((p) => p.slug === slug) ?? null;
 }
 
+// Per-course completion (same rule as a course certificate: every free lesson
+// done + quiz passed), for a given set of course IDs. Reused by both the
+// dashboard and Learning Path progress/certificate views.
+export type CourseCompletion = { completed: boolean; completedAt: string | null };
+
+export async function getCourseCompletionMap(courseIds: string[]): Promise<Map<string, CourseCompletion>> {
+  const map = new Map<string, CourseCompletion>();
+  if (courseIds.length === 0) return map;
+
+  const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    for (const id of courseIds) map.set(id, { completed: false, completedAt: null });
+    return map;
+  }
+
+  const [{ data: lessons }, completedIds, { data: attempts }] = await Promise.all([
+    supabase.from("lessons").select("id, course_id, is_premium").in("course_id", courseIds),
+    getCompletedLessonIds(),
+    supabase
+      .from("quiz_attempts")
+      .select("course_id, score, total, completed_at")
+      .eq("user_id", user.id)
+      .in("course_id", courseIds),
+  ]);
+
+  const bestByCourse = new Map<string, { score: number; total: number; completedAt: string }>();
+  for (const a of attempts ?? []) {
+    const existing = bestByCourse.get(a.course_id);
+    if (!existing || a.score > existing.score) {
+      bestByCourse.set(a.course_id, { score: a.score, total: a.total, completedAt: a.completed_at });
+    }
+  }
+
+  for (const courseId of courseIds) {
+    const courseLessons = (lessons ?? []).filter((l: any) => l.course_id === courseId);
+    const freeLessons = courseLessons.filter((l: any) => !l.is_premium);
+    const allFreeDone = freeLessons.length > 0 && freeLessons.every((l: any) => completedIds.has(l.id));
+    const attempt = bestByCourse.get(courseId) ?? null;
+    const quizPassed = attempt ? attempt.score / attempt.total >= 0.6 : false;
+    map.set(courseId, {
+      completed: allFreeDone && quizPassed,
+      completedAt: allFreeDone && quizPassed ? attempt!.completedAt : null,
+    });
+  }
+
+  return map;
+}
+
+export type LearningPathProgress = {
+  path: LearningPath;
+  completionByCourseSlug: Map<string, CourseCompletion>;
+  pathCompleted: boolean;
+  latestCompletionDate: string | null;
+};
+
+export async function getLearningPathProgress(slug: string): Promise<LearningPathProgress | null> {
+  const path = await getLearningPathBySlug(slug);
+  if (!path) return null;
+
+  const completionMap = await getCourseCompletionMap(path.courses.map((c) => c.id));
+  const completionByCourseSlug = new Map<string, CourseCompletion>();
+  let latest: string | null = null;
+
+  for (const c of path.courses) {
+    const entry = completionMap.get(c.id) ?? { completed: false, completedAt: null };
+    completionByCourseSlug.set(c.slug, entry);
+    if (entry.completedAt && (!latest || entry.completedAt > latest)) latest = entry.completedAt;
+  }
+
+  const pathCompleted = path.courses.length > 0 && path.courses.every((c) => completionByCourseSlug.get(c.slug)?.completed);
+
+  return {
+    path,
+    completionByCourseSlug,
+    pathCompleted,
+    latestCompletionDate: pathCompleted ? latest : null,
+  };
+}
+
 // --- Admin-only data. RLS enforces that only rows the caller is actually
 // allowed to see come back (e.g. "Admins read all profiles"), so a non-admin
 // calling these just gets their own row / an empty list rather than an error.

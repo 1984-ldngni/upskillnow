@@ -43,6 +43,15 @@ AI & automation tools) with its own course library. Building in three phases:
 - New `/find-your-path` — a 3-question quiz that recommends one of the 3 Learning
   Paths based on the learner's answers (no DB storage, pure client-side scoring).
 
+### Follow-up: Learning Path certificates
+- A path is "complete" once every course inside it meets the existing course
+  completion bar (all free lessons + passing quiz).
+- `/paths/[slug]` now shows per-course checkmarks, an overall progress bar, and
+  a "View your path certificate" button once every course is done (signed-in
+  users only — browsing a path's contents still doesn't require an account).
+- New `/certificate/path/[slug]` — a path-level certificate listing every course
+  completed, separate from the existing per-course certificate.
+
 ---
 
 ## Earlier history (pre-changelog)

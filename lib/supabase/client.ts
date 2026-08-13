@@ -29,6 +29,14 @@ export function getSupabaseClient(): SupabaseClient {
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
+      global: {
+        // Vercel's Data Cache can otherwise cache these fetch() calls even on
+        // routes marked `dynamic = "force-dynamic"`, which is exactly the
+        // "I added rows in Supabase but the site still shows the old count"
+        // symptom. Forcing no-store here makes every Supabase request bypass
+        // that cache layer regardless of route-level config.
+        fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+      },
     });
   }
   return browserClient;

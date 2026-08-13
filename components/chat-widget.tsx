@@ -73,7 +73,7 @@ export function ChatWidget() {
                 key={i}
                 className={`max-w-[85%] rounded-md border-2 border-black px-3 py-2 text-sm ${
                   m.role === "user"
-                    ? "ml-auto bg-primary text-primary-foreground"
+                    ? "ml-auto bg-orange-400 text-black"
                     : "bg-secondary text-foreground"
                 }`}
               >

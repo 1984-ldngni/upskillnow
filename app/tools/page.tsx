@@ -1,15 +1,31 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getTools } from "@/lib/data";
+import { getTools, type Tool } from "@/lib/data";
 
-export const dynamic = "force-dynamic";
+export default function ToolsPage() {
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-export default async function ToolsPage() {
-  const tools = await getTools();
-  const categories = Array.from(new Set(tools.map((t) => t.category)));
+  useEffect(() => {
+    getTools().then((t) => {
+      setTools(t);
+      setLoading(false);
+    });
+  }, []);
+
+  const categories = useMemo(
+    () => Array.from(new Set(tools.map((t) => t.category))).sort(),
+    [tools]
+  );
+
+  const visibleTools = activeCategory ? tools.filter((t) => t.category === activeCategory) : tools;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -21,30 +37,49 @@ export default async function ToolsPage() {
         </p>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <Badge key={c} variant="outline">{c}</Badge>
-          ))}
+          <button onClick={() => setActiveCategory(null)}>
+            <Badge variant={activeCategory === null ? "default" : "outline"}>
+              All ({tools.length})
+            </Badge>
+          </button>
+          {categories.map((c) => {
+            const count = tools.filter((t) => t.category === c).length;
+            return (
+              <button key={c} onClick={() => setActiveCategory(c)}>
+                <Badge variant={activeCategory === c ? "default" : "outline"}>
+                  {c} ({count})
+                </Badge>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tools.map((t) => (
-            <Link key={t.slug} href={`/tools/${t.slug}`}>
-              <Card className="h-full transition-shadow hover:shadow-md">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{t.name}</CardTitle>
-                    <Badge variant="outline">{t.difficultyLevel}</Badge>
-                  </div>
-                  <CardDescription>{t.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <Badge variant="secondary">{t.targetIndustry}</Badge>
-                  <Badge variant="secondary">{t.pricingTier}</Badge>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        {loading && <p className="mt-8 text-muted-foreground">Loading tools…</p>}
+
+        {!loading && (
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleTools.map((t) => (
+              <Link key={t.slug} href={`/tools/${t.slug}`}>
+                <Card className="h-full transition-shadow hover:shadow-md">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{t.name}</CardTitle>
+                      <Badge variant="outline">{t.difficultyLevel}</Badge>
+                    </div>
+                    <CardDescription>{t.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <Badge variant="secondary">{t.targetIndustry}</Badge>
+                    <Badge variant="secondary">{t.pricingTier}</Badge>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+            {visibleTools.length === 0 && (
+              <p className="text-sm text-muted-foreground">No tools in this category yet.</p>
+            )}
+          </div>
+        )}
       </main>
       <SiteFooter />
     </div>

@@ -1,13 +1,45 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getCourses, getTools } from "@/lib/data";
-import Link from "next/link";
+import { getCourses, getTools, type Course, type Tool } from "@/lib/data";
+import { useAuth } from "@/lib/auth-context";
 
-export const dynamic = "force-dynamic";
+export default function DashboardPage() {
+  const router = useRouter();
+  const { loading: authLoading, userId, isAdmin } = useAuth();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
-export default async function DashboardPage() {
-  const [courses, tools] = await Promise.all([getCourses(), getTools()]);
+  useEffect(() => {
+    if (authLoading) return;
+    if (!userId) {
+      router.push("/auth");
+      return;
+    }
+    if (isAdmin) {
+      router.push("/admin");
+      return;
+    }
+    Promise.all([getCourses(), getTools()]).then(([c, t]) => {
+      setCourses(c);
+      setTools(t);
+      setDataLoading(false);
+    });
+  }, [authLoading, userId, isAdmin, router]);
+
+  if (authLoading || !userId || isAdmin || dataLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen">

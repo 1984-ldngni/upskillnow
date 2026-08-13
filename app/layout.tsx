@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ImpersonationProvider } from "@/lib/impersonation-context";
+import { AuthProvider } from "@/lib/auth-context";
 
 // Note: using system font stacks (see tailwind.config.ts) instead of next/font/google
 // so builds don't depend on fetching fonts.googleapis.com at build time. Swap in
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        <ImpersonationProvider>{children}</ImpersonationProvider>
+        <AuthProvider>
+          <ImpersonationProvider>{children}</ImpersonationProvider>
+        </AuthProvider>
       </body>
     </html>
   );

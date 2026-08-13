@@ -102,3 +102,46 @@ export async function getQuizForCourseSlug(slug: string): Promise<QuizQuestion[]
     answerIndex: q.answer_index,
   }));
 }
+
+// --- Admin-only data. RLS enforces that only rows the caller is actually
+// allowed to see come back (e.g. "Admins read all profiles"), so a non-admin
+// calling these just gets their own row / an empty list rather than an error.
+
+export type Profile = {
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  role: string;
+};
+
+export async function getAllProfiles(): Promise<Profile[]> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, email, full_name, role, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+  return data.map((p: any) => ({
+    id: p.id,
+    email: p.email,
+    fullName: p.full_name,
+    role: p.role,
+  }));
+}
+
+export type CourseManagement = Course & { lessonCount: number; quizCount: number };
+
+export async function getCourseManagementList(): Promise<CourseManagement[]> {
+  const courses = await getCourses();
+  const withCounts = await Promise.all(
+    courses.map(async (c) => {
+      const [lessons, quiz] = await Promise.all([
+        getLessonsForCourseSlug(c.slug),
+        getQuizForCourseSlug(c.slug),
+      ]);
+      return { ...c, lessonCount: lessons.length, quizCount: quiz.length };
+    })
+  );
+  return withCounts;
+}

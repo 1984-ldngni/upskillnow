@@ -1,16 +1,25 @@
-import Link from "next/link";
-import { LayoutDashboard, Wrench, BookOpen, ShieldCheck } from "lucide-react";
+"use client";
 
-const links = [
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { LayoutDashboard, Wrench, BookOpen, ShieldCheck, LogOut } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+
+const baseLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/tools", label: "Tool Directory", icon: Wrench },
   { href: "/courses", label: "Courses", icon: BookOpen },
-  { href: "/admin", label: "Admin", icon: ShieldCheck },
 ];
 
 export function DashboardSidebar() {
+  const router = useRouter();
+  const { isAdmin, signOut } = useAuth();
+  const links = isAdmin
+    ? [...baseLinks, { href: "/admin", label: "Admin", icon: ShieldCheck }]
+    : baseLinks;
+
   return (
-    <aside className="hidden w-56 shrink-0 border-r-2 border-black p-4 md:block">
+    <aside className="hidden w-56 shrink-0 flex-col justify-between border-r-2 border-black p-4 md:flex">
       <nav className="flex flex-col gap-1">
         {links.map(({ href, label, icon: Icon }) => (
           <Link
@@ -23,6 +32,16 @@ export function DashboardSidebar() {
           </Link>
         ))}
       </nav>
+      <button
+        onClick={async () => {
+          await signOut();
+          router.push("/");
+        }}
+        className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-foreground/70 hover:bg-secondary hover:text-foreground"
+      >
+        <LogOut className="h-4 w-4" />
+        Sign out
+      </button>
     </aside>
   );
 }

@@ -38,7 +38,7 @@ export default function ToolsPage() {
 
         <div className="mt-6 flex flex-wrap gap-2">
           <button onClick={() => setActiveCategory(null)}>
-            <Badge variant={activeCategory === null ? "default" : "outline"}>
+            <Badge variant={activeCategory === null ? "accent" : "outline"}>
               All ({tools.length})
             </Badge>
           </button>
@@ -46,7 +46,7 @@ export default function ToolsPage() {
             const count = tools.filter((t) => t.category === c).length;
             return (
               <button key={c} onClick={() => setActiveCategory(c)}>
-                <Badge variant={activeCategory === c ? "default" : "outline"}>
+                <Badge variant={activeCategory === c ? "accent" : "outline"}>
                   {c} ({count})
                 </Badge>
               </button>

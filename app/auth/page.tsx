@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { logClientError } from "@/lib/error-logger";
 
@@ -47,9 +47,8 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary/40 p-6">
       <div className="w-full max-w-sm">
-        <Link href="/" className="mb-6 flex items-center justify-center gap-2 font-heading text-lg font-extrabold">
-          <Sparkles className="h-5 w-5 text-primary" />
-          UpSkillNow
+        <Link href="/" className="mb-6 flex items-center justify-center">
+          <Logo />
         </Link>
         <Card>
           <CardHeader>

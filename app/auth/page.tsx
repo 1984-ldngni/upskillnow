@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { logClientError } from "@/lib/error-logger";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -32,6 +33,10 @@ export default function AuthPage() {
     setLoading(false);
     if (error) {
       setError(error.message);
+      logClientError(`Auth ${mode} failed: ${error.message}`, {
+        level: "warning",
+        context: { mode, email },
+      });
       return;
     }
     router.push("/dashboard");

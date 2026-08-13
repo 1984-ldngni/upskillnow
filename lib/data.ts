@@ -1,4 +1,5 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { logClientError } from "@/lib/error-logger";
 
 export type Tool = {
   slug: string;
@@ -31,7 +32,10 @@ export async function getTools(): Promise<Tool[]> {
     .select("slug, name, description, website_url, target_industry, difficulty_level, pricing_tier, market_segment, subcategories(name, categories(name))")
     .order("name");
 
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) logClientError(`getTools failed: ${error.message}`, { context: { table: "tools" } });
+    return [];
+  }
 
   return data.map((t: any) => ({
     slug: t.slug,
@@ -59,7 +63,10 @@ export async function getCourses(): Promise<Course[]> {
     .select("slug, title, level, description")
     .order("title");
 
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) logClientError(`getCourses failed: ${error.message}`, { context: { table: "courses" } });
+    return [];
+  }
   return data as Course[];
 }
 
@@ -71,7 +78,10 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error || !data) {
+    if (error) logClientError(`getCourseBySlug failed: ${error.message}`, { context: { table: "courses", slug } });
+    return null;
+  }
   return data as Course;
 }
 
@@ -83,7 +93,10 @@ export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
     .eq("courses.slug", slug)
     .order("position");
 
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) logClientError(`getLessonsForCourseSlug failed: ${error.message}`, { context: { table: "lessons", slug } });
+    return [];
+  }
   return data.map((l: any) => ({ title: l.title, duration: l.duration }));
 }
 
@@ -95,7 +108,10 @@ export async function getQuizForCourseSlug(slug: string): Promise<QuizQuestion[]
     .eq("courses.slug", slug)
     .order("position");
 
-  if (error || !data) return [];
+  if (error || !data) {
+    if (error) logClientError(`getQuizForCourseSlug failed: ${error.message}`, { context: { table: "quiz_questions", slug } });
+    return [];
+  }
   return data.map((q: any) => ({
     question: q.question,
     options: q.options as string[],

@@ -15,7 +15,24 @@ import {
   type Profile,
   type CourseManagement,
 } from "@/lib/data";
-import { Eye } from "lucide-react";
+import { getRecentErrorLogs, type LoggedError } from "@/lib/error-logger";
+import { Eye, AlertTriangle } from "lucide-react";
+
+const levelVariant: Record<LoggedError["level"], "destructive" | "accent" | "outline"> = {
+  error: "destructive",
+  warning: "accent",
+  info: "outline",
+};
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
 export default function AdminPage() {
   const router = useRouter();
@@ -23,6 +40,7 @@ export default function AdminPage() {
   const { impersonatingUser, startImpersonation } = useImpersonation();
   const [users, setUsers] = useState<Profile[]>([]);
   const [courses, setCourses] = useState<CourseManagement[]>([]);
+  const [errorLogs, setErrorLogs] = useState<LoggedError[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -35,11 +53,14 @@ export default function AdminPage() {
       router.push("/dashboard");
       return;
     }
-    Promise.all([getAllProfiles(), getCourseManagementList()]).then(([u, c]) => {
-      setUsers(u);
-      setCourses(c);
-      setDataLoading(false);
-    });
+    Promise.all([getAllProfiles(), getCourseManagementList(), getRecentErrorLogs()]).then(
+      ([u, c, logs]) => {
+        setUsers(u);
+        setCourses(c);
+        setErrorLogs(logs);
+        setDataLoading(false);
+      }
+    );
   }, [authLoading, userId, isAdmin, router]);
 
   if (authLoading || !userId || !isAdmin || dataLoading) {
@@ -130,6 +151,43 @@ export default function AdminPage() {
                 ))}
                 {users.length === 0 && (
                   <p className="text-sm text-muted-foreground">No users yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="mt-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                  <CardTitle className="text-base">Recent errors ({errorLogs.length})</CardTitle>
+                </div>
+                <CardDescription>
+                  Client-side errors, failed data fetches, and auth failures across every user —
+                  captured automatically as they happen, no need to reproduce them yourself.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {errorLogs.map((log) => (
+                  <div key={log.id} className="rounded-md border-2 border-black px-3 py-2 text-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={levelVariant[log.level]}>{log.level}</Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {log.userEmail ?? "Not signed in"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{timeAgo(log.createdAt)}</span>
+                    </div>
+                    <p className="mt-1 font-medium">{log.message}</p>
+                    {log.path && <p className="text-xs text-muted-foreground">on {log.path}</p>}
+                  </div>
+                ))}
+                {errorLogs.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No errors logged yet — that's a good sign.
+                  </p>
                 )}
               </CardContent>
             </Card>

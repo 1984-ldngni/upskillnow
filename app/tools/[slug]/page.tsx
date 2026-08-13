@@ -1,16 +1,19 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getToolBySlug } from "@/lib/data";
+import { getToolBySlug, getCourseByToolSlug } from "@/lib/data";
 import { difficultyVariant, pricingVariant } from "@/lib/badge-colors";
+import { GraduationCap } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function ToolDetailPage({ params }: { params: { slug: string } }) {
   const tool = await getToolBySlug(params.slug);
   if (!tool) notFound();
+  const course = await getCourseByToolSlug(params.slug);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -46,9 +49,19 @@ export default async function ToolDetailPage({ params }: { params: { slug: strin
           </div>
         </div>
 
-        <a href={tool.websiteUrl} target="_blank" rel="noreferrer">
-          <Button className="mt-8">Visit {tool.name}</Button>
-        </a>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <a href={tool.websiteUrl} target="_blank" rel="noreferrer">
+            <Button>Visit {tool.name}</Button>
+          </a>
+          {course && (
+            <Link href={`/courses/${course.slug}`}>
+              <Button variant="outline">
+                <GraduationCap className="mr-2 h-4 w-4" />
+                Take the {tool.name} course
+              </Button>
+            </Link>
+          )}
+        </div>
       </main>
       <SiteFooter />
     </div>

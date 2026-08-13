@@ -19,9 +19,10 @@ export type Course = {
   title: string;
   level: string;
   description: string;
+  toolSlug: string | null;
 };
 
-export type Lesson = { title: string; duration: string };
+export type Lesson = { title: string; duration: string; isPremium: boolean };
 
 export type QuizQuestion = { question: string; options: string[]; answerIndex: number };
 
@@ -60,21 +61,27 @@ export async function getCourses(): Promise<Course[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("courses")
-    .select("slug, title, level, description")
+    .select("slug, title, level, description, tool_slug")
     .order("title");
 
   if (error || !data) {
     if (error) logClientError(`getCourses failed: ${error.message}`, { context: { table: "courses" } });
     return [];
   }
-  return data as Course[];
+  return data.map((c: any) => ({
+    slug: c.slug,
+    title: c.title,
+    level: c.level,
+    description: c.description,
+    toolSlug: c.tool_slug ?? null,
+  }));
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("courses")
-    .select("slug, title, level, description")
+    .select("slug, title, level, description, tool_slug")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -82,14 +89,38 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
     if (error) logClientError(`getCourseBySlug failed: ${error.message}`, { context: { table: "courses", slug } });
     return null;
   }
-  return data as Course;
+  return {
+    slug: data.slug,
+    title: data.title,
+    level: data.level,
+    description: data.description,
+    toolSlug: data.tool_slug ?? null,
+  };
+}
+
+export async function getCourseByToolSlug(toolSlug: string): Promise<Course | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("courses")
+    .select("slug, title, level, description, tool_slug")
+    .eq("tool_slug", toolSlug)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return {
+    slug: data.slug,
+    title: data.title,
+    level: data.level,
+    description: data.description,
+    toolSlug: data.tool_slug ?? null,
+  };
 }
 
 export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("title, duration, position, courses!inner(slug)")
+    .select("title, duration, position, is_premium, courses!inner(slug)")
     .eq("courses.slug", slug)
     .order("position");
 
@@ -97,7 +128,7 @@ export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
     if (error) logClientError(`getLessonsForCourseSlug failed: ${error.message}`, { context: { table: "lessons", slug } });
     return [];
   }
-  return data.map((l: any) => ({ title: l.title, duration: l.duration }));
+  return data.map((l: any) => ({ title: l.title, duration: l.duration, isPremium: l.is_premium ?? false }));
 }
 
 export async function getQuizForCourseSlug(slug: string): Promise<QuizQuestion[]> {

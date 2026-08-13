@@ -62,6 +62,15 @@ AI & automation tools) with its own course library. Building in three phases:
   the widget still works but replies with a "not fully set up yet" message
   instead of erroring.
 
+### Follow-up: canned answers before AI (cost control)
+- Added `lib/chat-faq.ts` — keyword-matched canned answers for the questions
+  most people actually ask (pricing, tools vs. courses, learning paths,
+  certificates, how to sign up).
+- `/api/chat` now checks the latest message against these first and returns
+  instantly with no AI call and no cost if it matches. Only messages that
+  don't match anything canned reach the AI, which keeps the bot feeling
+  responsive rather than robotic while cutting expected cost dramatically.
+
 ---
 
 ## Earlier history (pre-changelog)

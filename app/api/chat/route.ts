@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { matchFaq } from "@/lib/chat-faq";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -60,6 +61,18 @@ export async function POST(req: Request) {
 
     if (messages.length === 0) {
       return NextResponse.json({ error: "No message provided." }, { status: 400 });
+    }
+
+    // Check the latest user message against canned answers first. Most real
+    // traffic is the same handful of questions (pricing, what's included,
+    // how paths work), so this skips the AI call entirely — free, instant,
+    // and consistent — and only falls through to the AI for anything novel.
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role === "user") {
+      const faqMatch = matchFaq(lastMessage.content);
+      if (faqMatch) {
+        return NextResponse.json({ reply: faqMatch.answer, source: "faq" });
+      }
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;

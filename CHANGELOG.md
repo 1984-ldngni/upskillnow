@@ -2,6 +2,15 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Settings page: folder tabs instead of one long scroll
+- New `components/ui/tabs.tsx` — a small hand-rolled tabs primitive (no Radix
+  dependency) styled like manila-folder tabs: the active tab sits flush
+  against the panel below with no shared border seam, inactive tabs sit a
+  couple pixels lower and behind it.
+- `/settings` now organizes Profile, Notifications, Theme, and Billing into
+  four tabs sharing one bordered panel instead of stacking four separate
+  cards down the page. Sign out lives at the bottom of the Profile tab.
+
 ## 2026-08-14 — Fixed profiles RLS recursion; Settings gets notifications, dark mode, billing
 - **Root-cause fix**: the "Admins read all profiles" RLS policy queried the
   `profiles` table from inside its own `USING` clause, which Postgres flags

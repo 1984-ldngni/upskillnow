@@ -57,12 +57,12 @@ export function ChatWidget() {
     <div className="fixed bottom-6 right-6 z-50">
       {open && (
         <div className="mb-3 flex h-[28rem] w-80 flex-col rounded-md border-4 border-black bg-card shadow-brutal sm:w-96">
-          <div className="flex items-center justify-between border-b-2 border-black bg-primary px-4 py-3">
-            <p className="font-heading text-sm font-black text-primary-foreground">Ask us</p>
+          <div className="flex items-center justify-between border-b-2 border-black bg-amber-300 px-4 py-3">
+            <p className="font-heading text-sm font-black text-black">Ask us</p>
             <button
               onClick={() => setOpen(false)}
               aria-label="Close chat"
-              className="text-primary-foreground hover:opacity-75"
+              className="text-black hover:opacity-75"
             >
               <X className="h-4 w-4" />
             </button>
@@ -110,7 +110,7 @@ export function ChatWidget() {
 
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2 rounded-full border-2 border-black bg-primary px-4 py-3 font-heading text-sm font-black text-primary-foreground shadow-brutal-sm transition-transform hover:-translate-y-0.5"
+        className="flex items-center gap-2 rounded-full border-2 border-black bg-amber-300 px-4 py-3 font-heading text-sm font-black text-black shadow-brutal-sm transition-transform hover:-translate-y-0.5"
       >
         <MessageCircle className="h-5 w-5" />
         Ask us

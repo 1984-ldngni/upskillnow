@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { AppTopbar } from "@/components/app-topbar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +60,9 @@ function DashboardPageInner() {
   return (
     <div className="flex min-h-screen">
       <DashboardSidebar />
-      <main className="flex-1 p-6">
+      <div className="flex min-h-screen flex-1 flex-col">
+        <AppTopbar />
+        <main className="flex-1 p-6">
         {isAdmin && (
           <div className="mb-4 flex items-center justify-between rounded-md border-2 border-black bg-secondary px-4 py-3 text-sm">
             <div className="flex items-center gap-2 font-bold">
@@ -161,7 +164,8 @@ function DashboardPageInner() {
             ))}
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,21 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Profile menu + settings page, yellow "Ask us" bubble
+- Sign out was buried at the bottom of the left sidebar. Replaced it with a
+  new `AppTopbar` (top-right account button, avatar-style initial) shown
+  above the main content on every signed-in page — `/dashboard`, `/admin`,
+  and all 7 `AppShell` catalog pages. Clicking it opens a dropdown with the
+  user's name/email, a "Profile settings" link, and "Sign out."
+- `DashboardSidebar` no longer renders a sign-out button at all.
+- New `/settings` page: edit your display name (saved to `profiles.full_name`,
+  which is what shows up on certificates), view your email (read-only for
+  now), and a secondary sign-out option. `useAuth()` gained `refreshProfile()`
+  so the topbar/sidebar reflect a name change immediately after saving.
+- "Ask us" chat bubble and its panel header changed from the primary blue to
+  amber/yellow (`bg-amber-300`) — with blue used everywhere else in the app,
+  the bubble was blending in instead of standing out.
+
 ## 2026-08-14 — Unified logged-in navigation (AppShell)
 - Signed-in users were still seeing the public marketing header (`SiteHeader`)
   on `/tools`, `/tools/[slug]`, `/courses`, `/courses/[slug]`, `/paths`,

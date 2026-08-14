@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { AppTopbar } from "@/components/app-topbar";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,7 +78,9 @@ export default function AdminPage() {
       <ImpersonationBanner />
       <div className="flex flex-1">
         <DashboardSidebar />
-        <main className="flex-1 p-6">
+        <div className="flex flex-1 flex-col">
+          <AppTopbar />
+          <main className="flex-1 p-6">
           <div className="flex items-center gap-2">
             <h1 className="font-heading text-2xl font-black">Admin</h1>
             <Badge variant="accent">Admin only</Badge>
@@ -193,7 +196,8 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </div>
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   );

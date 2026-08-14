@@ -16,6 +16,7 @@ type AuthState = {
   profile: CurrentProfile | null;
   isAdmin: boolean;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
@@ -70,9 +71,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await getSupabaseClient().auth.signOut();
   }
 
+  async function refreshProfile() {
+    const supabase = getSupabaseClient();
+    const { data } = await supabase.auth.getUser();
+    const uid = data.user?.id ?? null;
+    if (!uid) {
+      setUserId(null);
+      setProfile(null);
+      return;
+    }
+    const { data: row } = await supabase
+      .from("profiles")
+      .select("id, email, full_name, role")
+      .eq("id", uid)
+      .maybeSingle();
+    setUserId(uid);
+    setProfile(
+      row ? { id: row.id, email: row.email, fullName: row.full_name, role: row.role } : null
+    );
+  }
+
   return (
     <AuthContext.Provider
-      value={{ loading, userId, profile, isAdmin: profile?.role === "admin", signOut }}
+      value={{
+        loading,
+        userId,
+        profile,
+        isAdmin: profile?.role === "admin",
+        signOut,
+        refreshProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

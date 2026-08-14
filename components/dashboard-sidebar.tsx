@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Wrench, BookOpen, Route, ShieldCheck, LogOut, Eye } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Wrench, BookOpen, Route, ShieldCheck, Eye } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth-context";
@@ -17,16 +17,15 @@ const learnerLinks = [
 const adminLinks = [{ href: "/admin", label: "Admin Overview", icon: ShieldCheck }];
 
 export function DashboardSidebar() {
-  const router = useRouter();
   const pathname = usePathname();
-  const { isAdmin, signOut } = useAuth();
+  const { isAdmin } = useAuth();
   const inAdminArea = pathname?.startsWith("/admin");
 
   const links = inAdminArea ? adminLinks : learnerLinks;
 
   return (
     <aside
-      className={`hidden w-56 shrink-0 flex-col justify-between border-r-2 border-black p-4 md:flex ${
+      className={`hidden w-56 shrink-0 flex-col border-r-2 border-black p-4 md:flex ${
         inAdminArea ? "bg-foreground text-background" : ""
       }`}
     >
@@ -92,21 +91,6 @@ export function DashboardSidebar() {
           </div>
         )}
       </div>
-
-      <button
-        onClick={async () => {
-          await signOut();
-          router.push("/");
-        }}
-        className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight ${
-          inAdminArea
-            ? "text-background/70 hover:bg-background/10 hover:text-background"
-            : "text-foreground/70 hover:bg-secondary hover:text-foreground"
-        }`}
-      >
-        <LogOut className="h-4 w-4" />
-        Sign out
-      </button>
     </aside>
   );
 }

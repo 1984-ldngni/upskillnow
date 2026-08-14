@@ -2,6 +2,14 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — "Continue learning" only shows courses you've actually started
+- The dashboard's "Continue learning" section listed every course in the
+  catalog (33 of them), not just ones with any progress — effectively a
+  duplicate of the full course list.
+- Now filters to courses with `completedFreeLessons > 0`. If none have been
+  started yet, shows an empty state ("You haven't started a course yet")
+  with a "Browse courses" button instead of an empty or overstuffed grid.
+
 ## 2026-08-14 — Removed redundant "Overview" from admin nav
 - Admin sidebar showed both "Admin Overview" (`/admin`) and "Overview"
   (`/dashboard`) at the same time — two overview-style links back to back.

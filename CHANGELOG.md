@@ -2,6 +2,28 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — Manage subscription / Cancel plan
+- Settings → Billing now shows real subscription details for paying users:
+  renewal date, payment method on file, and a "Cancel plan" button. New
+  `app/api/billing/cancel/route.ts` marks the subscription `canceled`
+  (verifies the caller's Supabase access token first, same pattern as the
+  checkout route).
+- **Important gap surfaced while building this**: the current checkout flow
+  uses Maya's one-time Checkout endpoint per billing period, not a live
+  Maya-side recurring subscription — nothing on Maya's end auto-charges
+  next cycle. Renewal today is effectively "come back and pay again next
+  period," not silent auto-renewal, which is why Cancel doesn't call Maya
+  at all (there's nothing there to cancel) and why the Billing tab now says
+  so explicitly rather than implying auto-renewal that isn't real. Genuine
+  auto-renewal would need Maya Vault (save a card, charge it again later
+  via a scheduled job) wired up separately — not built yet.
+- Related, also not built yet: nothing currently downgrades `profiles.plan`
+  back to `free` once `current_period_end` passes, whether from a
+  cancellation or just non-renewal. That needs the same scheduled job
+  flagged in the original implementation plan for past-due grace periods —
+  worth doing as one job that handles both cases together.
+- Verified: full `npx tsc --noEmit` pass.
+
 ## 2026-08-15 — Maya Checkout billing wired up (sandbox)
 - Replaced the mock Billing tab (Settings → Billing previously just set
   local UI state and showed "isn't wired up to real billing yet") with a

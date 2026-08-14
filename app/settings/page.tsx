@@ -13,7 +13,27 @@ import { useAuth } from "@/lib/auth-context";
 import { useTheme, type Theme } from "@/lib/theme-context";
 import { PLANS, type Currency, type PlanSlug } from "@/lib/pricing";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { LogOut, Sun, Moon, Monitor, User, Bell, Palette, CreditCard } from "lucide-react";
+import { LogOut, Sun, Moon, Monitor, User, Bell, Palette, CreditCard, Calendar } from "lucide-react";
+
+type SubscriptionRow = {
+  plan: "pro" | "team";
+  currency: "PHP" | "USD";
+  status: "active" | "past_due" | "canceled";
+  payment_method: "card" | "gcash" | "maya" | null;
+  current_period_end: string | null;
+  canceled_at: string | null;
+};
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+}
+
+const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  card: "Card",
+  gcash: "GCash",
+  maya: "Maya wallet",
+};
 
 const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun; color: string }[] = [
   { value: "light", label: "Light", icon: Sun, color: "text-amber-500" },
@@ -38,6 +58,10 @@ export default function SettingsPage() {
   const [billingCurrency, setBillingCurrency] = useState<Currency>("PHP");
   const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<PlanSlug | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -53,6 +77,56 @@ export default function SettingsPage() {
       setNotifyInApp(profile.notifyInApp);
     }
   }, [profile]);
+
+  async function loadSubscription() {
+    if (!userId) return;
+    setSubscriptionLoading(true);
+    const supabase = getSupabaseClient();
+    // RLS ("Users read their own subscription") scopes this to the caller's
+    // own row automatically — no explicit .eq("user_id", ...) needed, but
+    // included anyway for clarity and as a second layer of defense.
+    const { data } = await supabase
+      .from("subscriptions")
+      .select("plan, currency, status, payment_method, current_period_end, canceled_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    setSubscription(data as SubscriptionRow | null);
+    setSubscriptionLoading(false);
+  }
+
+  useEffect(() => {
+    if (!userId) return;
+    loadSubscription();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  async function handleCancelSubscription() {
+    setCancelError(null);
+    setCancelling(true);
+    try {
+      const supabase = getSupabaseClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setCancelError("Your session expired — please sign in again.");
+        return;
+      }
+      const res = await fetch("/api/billing/cancel", {
+        method: "POST",
+        headers: { authorization: `Bearer ${accessToken}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCancelError(data.error ?? "Couldn't cancel. Please try again.");
+        return;
+      }
+      await loadSubscription();
+    } catch {
+      setCancelError("Couldn't cancel. Please try again.");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -294,6 +368,46 @@ export default function SettingsPage() {
                 </button>
               </div>
             </div>
+
+            {!subscriptionLoading && subscription && subscription.status !== "canceled" && (
+              <div className="rounded-md border-2 border-black bg-secondary p-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-emerald-500" />
+                    <span>
+                      {subscription.status === "past_due" ? (
+                        <span className="font-bold text-destructive">
+                          Payment failed — please update your payment method.
+                        </span>
+                      ) : (
+                        <>
+                          Renews on <span className="font-bold">{formatDate(subscription.current_period_end)}</span>
+                          {subscription.payment_method && (
+                            <> via {PAYMENT_METHOD_LABEL[subscription.payment_method] ?? subscription.payment_method}</>
+                          )}
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="outline" disabled={cancelling} onClick={handleCancelSubscription}>
+                    {cancelling ? "Cancelling…" : "Cancel plan"}
+                  </Button>
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Renewal today means checking out again each period — it isn't fully automatic yet, so
+                  "Renews on" is when your current period ends, not an auto-charge date.
+                </p>
+              </div>
+            )}
+
+            {!subscriptionLoading && subscription?.status === "canceled" && (
+              <div className="rounded-md border-2 border-black bg-secondary p-3 text-sm">
+                <span className="font-bold">Plan cancelled.</span> You'll keep {profile?.plan === "team" ? "Team" : "Pro"}{" "}
+                access until {formatDate(subscription.current_period_end)}.
+              </div>
+            )}
+
+            {cancelError && <p className="text-xs font-medium text-destructive">{cancelError}</p>}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {PLANS[billingCurrency].map((p) => {

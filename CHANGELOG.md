@@ -2,6 +2,11 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Preview-mode banner recolored to yellow
+- Changed `PreviewModeBanner` from the neutral `bg-secondary` gray to
+  `bg-amber-300` (matching the "Ask us" bubble) so it pops instead of
+  blending into the surrounding blue-heavy UI.
+
 ## 2026-08-14 — Preview-mode banner now shows on every page, redundant sidebar "Back to Admin" removed
 - The "You're previewing the learner dashboard as an admin" banner (with
   its "Back to Admin" button) only rendered on `/dashboard`, so navigating

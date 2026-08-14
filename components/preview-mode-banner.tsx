@@ -16,13 +16,15 @@ export function PreviewModeBanner() {
   if (!previewingAsLearner) return null;
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b-2 border-black bg-secondary px-6 py-2 text-sm">
+    <div className="flex items-center justify-between gap-4 border-b-2 border-black bg-amber-300 px-6 py-2 text-sm text-black">
       <div className="flex items-center gap-2 font-bold">
-        <ShieldCheck className="h-4 w-4 text-violet-500" />
+        <ShieldCheck className="h-4 w-4 text-violet-600" />
         You're previewing the learner dashboard as an admin.
       </div>
       <Link href="/admin" onClick={exitPreview}>
-        <Button size="sm" variant="outline">Back to Admin</Button>
+        <Button size="sm" variant="outline" className="border-black bg-white text-black hover:bg-black hover:text-white">
+          Back to Admin
+        </Button>
       </Link>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -9,10 +9,20 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { getCoursesWithProgress, getTools, type CourseProgress, type Tool } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
-import { Award } from "lucide-react";
+import { Award, ShieldCheck } from "lucide-react";
 
 export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardPageInner />
+    </Suspense>
+  );
+}
+
+function DashboardPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get("preview") === "1";
   const { loading: authLoading, userId, isAdmin } = useAuth();
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
@@ -24,7 +34,10 @@ export default function DashboardPage() {
       router.push("/auth");
       return;
     }
-    if (isAdmin) {
+    // Admins land here from a fresh sign-in too (via the "next" fallback), so
+    // only skip the redirect to /admin when they deliberately clicked
+    // "Preview as Learner" (which sets ?preview=1).
+    if (isAdmin && !isPreview) {
       router.push("/admin");
       return;
     }
@@ -33,9 +46,9 @@ export default function DashboardPage() {
       setTools(t);
       setDataLoading(false);
     });
-  }, [authLoading, userId, isAdmin, router]);
+  }, [authLoading, userId, isAdmin, isPreview, router]);
 
-  if (authLoading || !userId || isAdmin || dataLoading) {
+  if (authLoading || !userId || (isAdmin && !isPreview) || dataLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading…</p>
@@ -47,6 +60,18 @@ export default function DashboardPage() {
     <div className="flex min-h-screen">
       <DashboardSidebar />
       <main className="flex-1 p-6">
+        {isAdmin && (
+          <div className="mb-4 flex items-center justify-between rounded-md border-2 border-black bg-secondary px-4 py-3 text-sm">
+            <div className="flex items-center gap-2 font-bold">
+              <ShieldCheck className="h-4 w-4" />
+              You're previewing the learner dashboard as an admin.
+            </div>
+            <Link href="/admin">
+              <Button size="sm" variant="outline">Back to Admin</Button>
+            </Link>
+          </div>
+        )}
+
         <h1 className="font-heading text-2xl font-black">Welcome back</h1>
         <p className="text-muted-foreground">Here's where you left off.</p>
 

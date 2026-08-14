@@ -52,14 +52,13 @@ export function DashboardSidebar() {
       }`}
     >
       <div>
-        <Link
-          href="/"
-          className={`mb-2 flex items-center rounded-md px-3 py-2 ${
-            adminMode ? "hover:bg-white/10" : "hover:bg-secondary"
-          }`}
-        >
+        {/* Not a link — the marketing landing page ("/") isn't part of the
+            signed-in app, so the logo here is just a wordmark, not a way
+            back out to it. Overview (or Admin Overview) is the actual
+            "home" for a signed-in user. */}
+        <div className="mb-2 flex items-center px-3 py-2">
           <Logo size="sm" />
-        </Link>
+        </div>
 
         {adminMode && (
           <div className="mb-4 px-3">

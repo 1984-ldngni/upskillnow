@@ -2,6 +2,15 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Sidebar logo no longer links out to the landing page
+- The logo at the top of the signed-in sidebar (`DashboardSidebar`, shared
+  by both learner and admin views) linked to `/`, the marketing landing
+  page — so clicking it while signed in dropped the user (admin or
+  learner) out of the app entirely.
+- Changed it to a plain, non-clickable wordmark. The landing page isn't
+  part of the signed-in experience; Overview / Admin Overview is the
+  actual "home" and is already one click away in the nav below it.
+
 ## 2026-08-14 — Find Your Path quiz: multi-select answers + multiple recommendations
 - Questions were single-select (one answer picks one option), which forced
   a learner to pick just one interest per question even when several

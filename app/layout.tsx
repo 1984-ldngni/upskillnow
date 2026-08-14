@@ -3,6 +3,7 @@ import "./globals.css";
 import { ImpersonationProvider } from "@/lib/impersonation-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
+import { PreviewModeProvider } from "@/lib/preview-mode-context";
 import { GlobalErrorListener } from "@/components/global-error-listener";
 import { ChatWidget } from "@/components/chat-widget";
 
@@ -39,11 +40,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans antialiased" suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>
-            <ImpersonationProvider>
-              <GlobalErrorListener />
-              {children}
-              <ChatWidget />
-            </ImpersonationProvider>
+            <PreviewModeProvider>
+              <ImpersonationProvider>
+                <GlobalErrorListener />
+                {children}
+                <ChatWidget />
+              </ImpersonationProvider>
+            </PreviewModeProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

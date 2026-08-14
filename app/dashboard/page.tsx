@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
@@ -17,36 +17,34 @@ import {
   type RecommendedPath,
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { usePreviewMode } from "@/lib/preview-mode-context";
 import { Award, ShieldCheck, BookOpen, Route, Sparkles, PartyPopper } from "lucide-react";
 
 export default function DashboardPage() {
-  return (
-    <Suspense fallback={null}>
-      <DashboardPageInner />
-    </Suspense>
-  );
-}
-
-function DashboardPageInner() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const isPreview = searchParams.get("preview") === "1";
   const { loading: authLoading, userId, isAdmin } = useAuth();
+  // Session-wide state (not a ?preview=1 query param) — only flips when the
+  // admin explicitly clicks "Preview as Learner" or "Back to Admin," and
+  // stays put across navigation to /tools, /courses, /paths, etc. `loading`
+  // covers the brief window before the sessionStorage read on mount
+  // completes, so a hard reload while previewing doesn't briefly look like
+  // "not previewing" and bounce the admin to /admin.
+  const { previewingAsLearner, exitPreview, loading: previewLoading } = usePreviewMode();
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [recommendation, setRecommendation] = useState<RecommendedPath | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || previewLoading) return;
     if (!userId) {
       router.push("/auth");
       return;
     }
     // Admins land here from a fresh sign-in too (via the "next" fallback), so
     // only skip the redirect to /admin when they deliberately clicked
-    // "Preview as Learner" (which sets ?preview=1).
-    if (isAdmin && !isPreview) {
+    // "Preview as Learner."
+    if (isAdmin && !previewingAsLearner) {
       router.push("/admin");
       return;
     }
@@ -56,9 +54,9 @@ function DashboardPageInner() {
       setRecommendation(r);
       setDataLoading(false);
     });
-  }, [authLoading, userId, isAdmin, isPreview, router]);
+  }, [authLoading, previewLoading, userId, isAdmin, previewingAsLearner, router]);
 
-  if (authLoading || !userId || (isAdmin && !isPreview) || dataLoading) {
+  if (authLoading || previewLoading || !userId || (isAdmin && !previewingAsLearner) || dataLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading…</p>
@@ -68,7 +66,7 @@ function DashboardPageInner() {
 
   return (
     <div className="flex min-h-screen">
-      <DashboardSidebar previewingAsLearner={isPreview} />
+      <DashboardSidebar />
       <div className="flex min-h-screen flex-1 flex-col">
         <AppTopbar />
         <main className="flex-1 p-6">
@@ -78,7 +76,7 @@ function DashboardPageInner() {
               <ShieldCheck className="h-4 w-4 text-violet-500" />
               You're previewing the learner dashboard as an admin.
             </div>
-            <Link href="/admin">
+            <Link href="/admin" onClick={exitPreview}>
               <Button size="sm" variant="outline">Back to Admin</Button>
             </Link>
           </div>

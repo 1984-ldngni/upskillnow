@@ -2,6 +2,26 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Preview as Learner no longer resets when navigating away from Dashboard
+- Bug: "Preview as Learner" was tracked only as a `?preview=1` query param on
+  `/dashboard`, passed down as a prop to the sidebar. Every other page the
+  sidebar renders on (`/tools`, `/courses`, `/paths`, `/settings`,
+  `/find-your-path`) called it with no prop, so it silently defaulted back
+  to admin mode the instant the admin clicked into any of those — dropping
+  them out of preview without ever touching "Back to Admin."
+- Fixed by moving preview state out of the URL and into a new app-wide
+  `PreviewModeProvider` (`lib/preview-mode-context.tsx`), persisted to
+  `sessionStorage` so it also survives a page reload. It now only changes
+  when the admin explicitly clicks "Preview as Learner" or "Back to Admin."
+- `components/dashboard-sidebar.tsx` and `app/dashboard/page.tsx` now read
+  `usePreviewMode()` instead of a query param / prop; `app/dashboard/page.tsx`
+  no longer needs `useSearchParams()`, so the `<Suspense>` wrapper it
+  required was removed too.
+- Added a `loading` flag to the preview context so `/dashboard` waits for
+  the `sessionStorage` read to finish before deciding whether to redirect
+  an admin to `/admin` — otherwise a hard reload while previewing would
+  briefly look like "not previewing" and bounce them out.
+
 ## 2026-08-14 — Find Your Path quiz now covers all 11 Learning Paths
 - The quiz was hardcoded to 3 fixed path slugs, with each answer picking
   one directly and a majority vote deciding the result — that approach

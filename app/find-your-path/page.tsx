@@ -121,8 +121,15 @@ const QUESTIONS: QuizQuestion[] = [
   },
 ];
 
+// How many ranked recommendations to show — enough to feel like a real
+// shortlist without listing all 11 paths regardless of fit.
+const MAX_RECOMMENDATIONS = 3;
+
 export default function FindYourPathPage() {
-  const [answers, setAnswers] = useState<Record<number, number>>({});
+  // Multi-select: each question now maps to a Set of chosen option indices
+  // instead of a single index, since a learner's interests often span more
+  // than one option per question (e.g. both "writing" and "automation").
+  const [answers, setAnswers] = useState<Record<number, number[]>>({});
   const [submitted, setSubmitted] = useState(false);
   const [paths, setPaths] = useState<LearningPath[]>([]);
 
@@ -130,36 +137,53 @@ export default function FindYourPathPage() {
     getLearningPaths().then(setPaths);
   }, []);
 
+  function toggleOption(qi: number, oi: number) {
+    setAnswers((a) => {
+      const current = a[qi] ?? [];
+      const next = current.includes(oi)
+        ? current.filter((i) => i !== oi)
+        : [...current, oi];
+      return { ...a, [qi]: next };
+    });
+  }
+
   const traitScores = useMemo(() => {
     const totals: Partial<Record<Trait, number>> = {};
-    for (const [qi, optionIndex] of Object.entries(answers)) {
-      const option = QUESTIONS[Number(qi)]?.options[optionIndex];
-      if (!option) continue;
-      for (const [trait, points] of Object.entries(option.traits)) {
-        totals[trait as Trait] = (totals[trait as Trait] ?? 0) + (points ?? 0);
+    for (const [qi, optionIndices] of Object.entries(answers)) {
+      for (const oi of optionIndices) {
+        const option = QUESTIONS[Number(qi)]?.options[oi];
+        if (!option) continue;
+        for (const [trait, points] of Object.entries(option.traits)) {
+          totals[trait as Trait] = (totals[trait as Trait] ?? 0) + (points ?? 0);
+        }
       }
     }
     return totals;
   }, [answers]);
 
-  const recommendedSlug = useMemo(() => {
-    let bestSlug: string | null = null;
-    let bestScore = -Infinity;
-    for (const [slug, weights] of Object.entries(PATH_TRAITS)) {
+  // Ranked shortlist instead of a single winner-take-all pick — with
+  // multi-select answers it's common for a learner to score meaningfully on
+  // two or three paths at once, and picking just the top one throws that
+  // signal away.
+  const recommendedSlugs = useMemo(() => {
+    const scored = Object.entries(PATH_TRAITS).map(([slug, weights]) => {
       let score = 0;
       for (const [trait, weight] of Object.entries(weights)) {
         score += (traitScores[trait as Trait] ?? 0) * (weight ?? 0);
       }
-      if (score > bestScore) {
-        bestScore = score;
-        bestSlug = slug;
-      }
-    }
-    return bestSlug;
+      return { slug, score };
+    });
+    return scored
+      .filter((s) => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_RECOMMENDATIONS)
+      .map((s) => s.slug);
   }, [traitScores]);
 
-  const recommendedPath = paths.find((p) => p.slug === recommendedSlug) ?? null;
-  const allAnswered = Object.keys(answers).length === QUESTIONS.length;
+  const recommendedPaths = recommendedSlugs
+    .map((slug) => paths.find((p) => p.slug === slug))
+    .filter((p): p is LearningPath => Boolean(p));
+  const allAnswered = QUESTIONS.every((_, qi) => (answers[qi]?.length ?? 0) > 0);
 
   function reset() {
     setAnswers({});
@@ -173,7 +197,8 @@ export default function FindYourPathPage() {
           <h1 className="font-heading text-3xl font-black">Find your path</h1>
         </div>
         <p className="mt-2 text-muted-foreground">
-          Seven quick questions — we'll match you to one of our {paths.length || 11} Learning Paths.
+          Seven quick questions — select all that apply, and we'll match you to your best-fit
+          Learning Paths out of {paths.length || 11}.
         </p>
 
         {!submitted && (
@@ -184,53 +209,74 @@ export default function FindYourPathPage() {
                   <CardTitle className="text-base">
                     {qi + 1}. {q.question}
                   </CardTitle>
+                  <CardDescription>Select all that apply</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {q.options.map((opt, oi) => (
-                    <button
-                      key={opt.label}
-                      onClick={() => setAnswers((a) => ({ ...a, [qi]: oi }))}
-                      className={`w-full rounded-md border-2 px-4 py-2 text-left text-sm font-medium transition-colors ${
-                        answers[qi] === oi
-                          ? "border-black bg-primary/10"
-                          : "border-black hover:bg-secondary"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                  {q.options.map((opt, oi) => {
+                    const selected = (answers[qi] ?? []).includes(oi);
+                    return (
+                      <button
+                        key={opt.label}
+                        onClick={() => toggleOption(qi, oi)}
+                        aria-pressed={selected}
+                        className={`flex w-full items-center gap-3 rounded-md border-2 px-4 py-2 text-left text-sm font-medium transition-colors ${
+                          selected
+                            ? "border-black bg-primary/10"
+                            : "border-black hover:bg-secondary"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border-2 border-black text-[10px] font-black ${
+                            selected ? "bg-primary text-primary-foreground" : "bg-white"
+                          }`}
+                        >
+                          {selected ? "✓" : ""}
+                        </span>
+                        {opt.label}
+                      </button>
+                    );
+                  })}
                 </CardContent>
               </Card>
             ))}
 
             <Button disabled={!allAnswered} onClick={() => setSubmitted(true)}>
-              See my recommendation
+              See my recommendations
             </Button>
           </div>
         )}
 
         {submitted && (
-          <div className="mt-8">
-            {recommendedPath ? (
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Route className="h-4 w-4 text-emerald-500" />
-                    <CardTitle>{recommendedPath.title}</CardTitle>
-                  </div>
-                  <CardDescription>{recommendedPath.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-wrap gap-3">
-                  <Link href={`/paths/${recommendedPath.slug}`}>
-                    <Button>View this path</Button>
-                  </Link>
-                  <Button variant="outline" onClick={reset}>
-                    Retake the quiz
-                  </Button>
-                </CardContent>
-              </Card>
+          <div className="mt-8 space-y-4">
+            {recommendedPaths.length > 0 ? (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  Your top {recommendedPaths.length === 1 ? "match" : `${recommendedPaths.length} matches`}, ranked:
+                </p>
+                {recommendedPaths.map((path, i) => (
+                  <Card key={path.slug}>
+                    <CardHeader>
+                      <div className="flex items-center gap-2">
+                        <Route className="h-4 w-4 text-emerald-500" />
+                        <CardTitle>
+                          #{i + 1} — {path.title}
+                        </CardTitle>
+                      </div>
+                      <CardDescription>{path.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-wrap gap-3">
+                      <Link href={`/paths/${path.slug}`}>
+                        <Button>View this path</Button>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                ))}
+                <Button variant="outline" onClick={reset}>
+                  Retake the quiz
+                </Button>
+              </>
             ) : (
-              <p className="text-muted-foreground">Loading your recommendation…</p>
+              <p className="text-muted-foreground">Loading your recommendations…</p>
             )}
           </div>
         )}

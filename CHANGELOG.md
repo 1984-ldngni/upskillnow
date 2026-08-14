@@ -2,6 +2,22 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Find Your Path quiz: multi-select answers + multiple recommendations
+- Questions were single-select (one answer picks one option), which forced
+  a learner to pick just one interest per question even when several
+  applied. Changed every question to multi-select — answers now toggle on
+  and off, with a checkbox-style indicator, and the "select all that apply"
+  hint added under each question.
+- Results changed from a single winner-take-all pick to a ranked shortlist
+  of up to 3 Learning Paths (any path scoring above zero, sorted by score,
+  capped at 3), so a learner whose answers genuinely span two interests
+  (e.g. both content creation and coding support) sees both instead of an
+  arbitrary tie-break picking one.
+- Re-verified all 11 paths are still reachable as a top-3 result under the
+  new multi-select scoring via a Node simulation (one pass per path,
+  selecting every option relevant to that path's trait profile) — all 11
+  passed.
+
 ## 2026-08-14 — Preview-mode banner recolored to yellow
 - Changed `PreviewModeBanner` from the neutral `bg-secondary` gray to
   `bg-amber-300` (matching the "Ask us" bubble) so it pops instead of

@@ -15,6 +15,10 @@ const learnerLinks = [
 ];
 
 const adminOnlyLink = { href: "/admin", label: "Admin Overview", icon: ShieldCheck };
+// Everything but "Overview" — admins get their own landing page
+// (Admin Overview, above) instead, and can still reach the learner
+// dashboard via "Preview as Learner" below when they actually want it.
+const adminCatalogLinks = learnerLinks.filter((link) => link.href !== "/dashboard");
 
 export function DashboardSidebar({
   previewingAsLearner = false,
@@ -30,7 +34,7 @@ export function DashboardSidebar({
   const { isAdmin } = useAuth();
   const adminMode = isAdmin && !previewingAsLearner;
 
-  const links = adminMode ? [adminOnlyLink, ...learnerLinks] : learnerLinks;
+  const links = adminMode ? [adminOnlyLink, ...adminCatalogLinks] : learnerLinks;
 
   return (
     <aside

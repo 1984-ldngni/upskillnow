@@ -2,6 +2,13 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Removed redundant "Overview" from admin nav
+- Admin sidebar showed both "Admin Overview" (`/admin`) and "Overview"
+  (`/dashboard`) at the same time — two overview-style links back to back.
+  Dropped the learner "Overview" link for admins; "Admin Overview" is their
+  landing page, and "Preview as Learner" (already in the sidebar) still gets
+  them to the real learner dashboard when they want it.
+
 ## 2026-08-14 — Billing tab shows plans inline instead of linking out
 - The Billing tab's "View plans & upgrade" button sent signed-in users to
   `/#pricing` on the public landing page — jarring, and not what "billing"

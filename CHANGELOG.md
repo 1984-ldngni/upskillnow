@@ -2,6 +2,31 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — 8 new Learning Paths cover the 26 previously-orphaned courses (data only, no code changes)
+- Reviewed the 26 tool courses that weren't in any Learning Path and found
+  clean thematic groupings. Added 8 new paths:
+  - **Enterprise RPA Specialist** — UiPath → Automation Anywhere → Blue Prism
+  - **Low-Code to Enterprise Automation** — Power Automate → Kissflow → Pega → WorkFusion
+  - **AI Content Production** — DALL-E → Synthesia → ElevenLabs
+  - **AI Coding Support Specialist** — GitHub Copilot → Windsurf → Claude Code
+  - **Healthcare Patient Engagement** — Tidio → Drift → Klara → Luma Health
+  - **Legal E-Discovery Support** — Everlaw → Relativity
+  - **Executive Productivity Toolkit** — Motion → Slack → Microsoft Copilot 365
+  - **Frontier AI Models: Claude & Gemini** — Claude → Gemini
+- Also restructured the existing **Automation Specialist** path from one
+  combined intro course + n8n into a real beginner-to-advanced progression:
+  Zapier → Make → n8n. The old combined "Workflow Automation with Zapier &
+  Make" course is still live and browsable on its own, just no longer
+  required for this path's certificate.
+- Result: 32 of 33 courses now belong to at least one of 11 total Learning
+  Paths (up from 7 of 33 across 3 paths). The one remaining standalone
+  course is the now-superseded combined Zapier & Make course, intentionally
+  left out since its content is superseded by the new progression.
+- No app code changed — `/paths`, `/paths/[slug]`, and the dashboard's
+  Learning Path recommendation all read live from Supabase, so this shows
+  up automatically. Not yet updated: the Find Your Path quiz still only
+  recommends 3 of the now-11 paths — worth expanding separately.
+
 ## 2026-08-14 — Dashboard recommends a specialization, not a random tool
 - "Recommended tools for you" was just `tools.slice(0, 3)` — the first three
   tools alphabetically, identical for every learner regardless of what

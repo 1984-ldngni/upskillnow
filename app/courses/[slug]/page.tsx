@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AppShell } from "@/components/app-shell";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,13 +84,9 @@ export default function CourseLessonPage() {
 
   if (notFound || !course) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      <AppShell maxWidth="max-w-3xl">
           <p className="text-muted-foreground">Course not found.</p>
-        </main>
-        <SiteFooter />
-      </div>
+      </AppShell>
     );
   }
 
@@ -103,9 +98,7 @@ export default function CourseLessonPage() {
   const progressPct = freeLessons.length > 0 ? Math.round((completedFreeCount / freeLessons.length) * 100) : 0;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <AppShell maxWidth="max-w-3xl">
         <div className="mt-4 flex items-center gap-2">
           <h1 className="font-heading text-3xl font-black">{course.title}</h1>
         </div>
@@ -187,8 +180,6 @@ export default function CourseLessonPage() {
             </p>
           )}
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

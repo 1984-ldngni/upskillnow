@@ -2,6 +2,30 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Unified logged-in navigation (AppShell)
+- Signed-in users were still seeing the public marketing header (`SiteHeader`)
+  on `/tools`, `/tools/[slug]`, `/courses`, `/courses/[slug]`, `/paths`,
+  `/paths/[slug]`, and `/find-your-path` — only `/dashboard` and `/admin` used
+  the app sidebar, so navigating between pages felt like bouncing between two
+  different apps.
+- New `components/app-shell.tsx`: a shared shell that shows the `DashboardSidebar`
+  (same one used on `/dashboard`/`/admin`) for signed-in users, and falls back to
+  the marketing `SiteHeader`/`SiteFooter` for signed-out visitors — so the
+  catalog is still fully browsable pre-signup, but the whole logged-in
+  experience now shares one consistent shell.
+- Converted all 7 pages above to use `AppShell` in place of their own
+  `SiteHeader`/`SiteFooter` wrapper.
+
+### Follow-up: distinct admin UI + "Preview as Learner"
+- `DashboardSidebar` now shows different nav links depending on whether you're
+  in `/admin` (Admin Overview only) or the learner app (Overview, Tool
+  Directory, Courses, Paths — Paths was missing before), with a dark theme and
+  an "Admin mode" badge while in the admin area.
+- Admins visiting `/dashboard` are auto-redirected to `/admin` as before, but
+  can now click "Preview as Learner" to see the real learner dashboard using
+  their own account's real data (via `?preview=1`, which bypasses the
+  redirect) — no need to create a second test account.
+
 ## 2026-08-14 — Codecademy-inspired feature build (in progress)
 
 Reviewed Codecademy's catalog/course/path structure to borrow proven UX patterns —

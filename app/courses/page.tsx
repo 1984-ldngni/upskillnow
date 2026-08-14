@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AppShell } from "@/components/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,9 +57,7 @@ export default function CoursesPage() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
+    <AppShell>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-heading text-3xl font-black">Courses</h1>
@@ -132,8 +129,6 @@ export default function CoursesPage() {
             )}
           </div>
         )}
-      </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

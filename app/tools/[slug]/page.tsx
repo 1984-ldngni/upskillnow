@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AppShell } from "@/components/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getToolBySlug, getCourseByToolSlug } from "@/lib/data";
@@ -16,9 +15,7 @@ export default async function ToolDetailPage({ params }: { params: { slug: strin
   const course = await getCourseByToolSlug(params.slug);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <AppShell maxWidth="max-w-3xl">
         <div className="flex items-center gap-2">
           <Badge variant="outline">{tool.category}</Badge>
           <Badge variant="outline">{tool.subcategory}</Badge>
@@ -62,8 +59,6 @@ export default async function ToolDetailPage({ params }: { params: { slug: strin
             </Link>
           )}
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

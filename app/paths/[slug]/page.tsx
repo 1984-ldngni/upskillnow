@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AppShell } from "@/components/app-shell";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -60,22 +59,16 @@ export default function LearningPathPage() {
 
   if (!path) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+      <AppShell maxWidth="max-w-3xl">
           <p className="text-muted-foreground">Path not found.</p>
-        </main>
-        <SiteFooter />
-      </div>
+      </AppShell>
     );
   }
 
   const completedCount = path.courses.filter((c) => completion.get(c.slug)?.completed).length;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-12">
+    <AppShell maxWidth="max-w-3xl">
         <div className="flex items-center gap-2">
           <Route className="h-5 w-5 text-primary" />
           <Badge variant={difficultyVariant(path.level)}>{path.level}</Badge>
@@ -145,8 +138,6 @@ export default function LearningPathPage() {
             )
           )}
         </div>
-      </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { AppShell } from "@/components/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,9 +36,7 @@ export default function PathsPage() {
   const visiblePaths = activeLevel ? paths.filter((p) => p.level === activeLevel) : paths;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <SiteHeader />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12">
+    <AppShell>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="font-heading text-3xl font-black">Learning Paths</h1>
@@ -108,8 +105,6 @@ export default function PathsPage() {
             )}
           </div>
         )}
-      </main>
-      <SiteFooter />
-    </div>
+    </AppShell>
   );
 }

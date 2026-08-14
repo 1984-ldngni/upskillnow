@@ -11,9 +11,10 @@ export type CurrentProfile = {
   role: string;
   notifyEmail: boolean;
   notifyInApp: boolean;
+  plan: "free" | "pro" | "team";
 };
 
-const PROFILE_COLUMNS = "id, email, full_name, role, notify_email, notify_in_app";
+const PROFILE_COLUMNS = "id, email, full_name, role, notify_email, notify_in_app, plan";
 
 function mapProfileRow(row: {
   id: string;
@@ -22,6 +23,7 @@ function mapProfileRow(row: {
   role: string;
   notify_email: boolean | null;
   notify_in_app: boolean | null;
+  plan: string | null;
 }): CurrentProfile {
   return {
     id: row.id,
@@ -30,6 +32,7 @@ function mapProfileRow(row: {
     role: row.role,
     notifyEmail: row.notify_email ?? true,
     notifyInApp: row.notify_in_app ?? true,
+    plan: (row.plan as CurrentProfile["plan"]) ?? "free",
   };
 }
 

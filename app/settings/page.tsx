@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme, type Theme } from "@/lib/theme-context";
-import { PLANS, type Currency } from "@/lib/pricing";
+import { PLANS, type Currency, type PlanSlug } from "@/lib/pricing";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { LogOut, Sun, Moon, Monitor, User, Bell, Palette, CreditCard } from "lucide-react";
 
@@ -36,7 +36,8 @@ export default function SettingsPage() {
   const [notifSaving, setNotifSaving] = useState(false);
 
   const [billingCurrency, setBillingCurrency] = useState<Currency>("PHP");
-  const [chosenPlan, setChosenPlan] = useState<string | null>(null);
+  const [checkoutLoadingPlan, setCheckoutLoadingPlan] = useState<PlanSlug | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -70,6 +71,38 @@ export default function SettingsPage() {
       setError("Couldn't save your changes. Please try again.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleChoosePlan(plan: PlanSlug) {
+    setCheckoutError(null);
+    setCheckoutLoadingPlan(plan);
+    try {
+      const supabase = getSupabaseClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        setCheckoutError("Your session expired — please sign in again.");
+        return;
+      }
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ plan, currency: billingCurrency }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.redirectUrl) {
+        setCheckoutError(data.error ?? "Couldn't start checkout. Please try again.");
+        return;
+      }
+      window.location.href = data.redirectUrl;
+    } catch {
+      setCheckoutError("Couldn't start checkout. Please try again.");
+    } finally {
+      setCheckoutLoadingPlan(null);
     }
   }
 
@@ -246,7 +279,9 @@ export default function SettingsPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="font-heading text-lg font-black">Billing</h2>
-                  <Badge variant="green">Current: Free</Badge>
+                  <Badge variant="green">
+                    Current: {profile?.plan === "free" ? "Free" : profile?.plan === "pro" ? "Pro" : "Team"}
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Pick a plan to see what changes.</p>
               </div>
@@ -262,7 +297,8 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               {PLANS[billingCurrency].map((p) => {
-                const isCurrent = p.name === "Free";
+                const isCurrent = p.slug === (profile?.plan ?? "free");
+                const isLoading = checkoutLoadingPlan === p.slug;
                 return (
                   <div
                     key={p.name}
@@ -278,14 +314,15 @@ export default function SettingsPage() {
                       <p className="mt-1 font-heading text-xl font-black">{p.price}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{p.blurb}</p>
                     </div>
-                    {!isCurrent && (
+                    {!isCurrent && p.slug !== "free" && (
                       <Button
                         size="sm"
-                        variant={chosenPlan === p.name ? "secondary" : "outline"}
+                        variant="outline"
                         className="mt-3"
-                        onClick={() => setChosenPlan(p.name)}
+                        disabled={checkoutLoadingPlan !== null}
+                        onClick={() => handleChoosePlan(p.slug)}
                       >
-                        {chosenPlan === p.name ? "Selected" : `Choose ${p.name}`}
+                        {isLoading ? "Redirecting…" : `Choose ${p.name}`}
                       </Button>
                     )}
                   </div>
@@ -293,12 +330,12 @@ export default function SettingsPage() {
               })}
             </div>
 
-            {chosenPlan && (
-              <p className="text-xs text-muted-foreground">
-                Upgrading to {chosenPlan} isn't wired up to real billing yet — we'll email you the
-                moment it's ready to go.
-              </p>
-            )}
+            {checkoutError && <p className="text-xs font-medium text-destructive">{checkoutError}</p>}
+
+            <p className="text-xs text-muted-foreground">
+              Payments are processed by Maya Checkout (cards and GCash) — currently running against
+              Maya's sandbox environment, so no real charges happen yet.
+            </p>
           </TabsContent>
         </div>
       </Tabs>

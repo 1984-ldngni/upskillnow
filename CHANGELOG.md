@@ -2,6 +2,53 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — Maya Checkout billing wired up (sandbox)
+- Replaced the mock Billing tab (Settings → Billing previously just set
+  local UI state and showed "isn't wired up to real billing yet") with a
+  real Maya Checkout integration — cards and GCash, both PHP and USD —
+  running against Maya's sandbox environment for now, since production
+  requires the LEX.CR8.IT Maya Business account to be approved first (see
+  `Maya_Billing_Implementation_Plan.md`).
+- New Supabase tables: `subscriptions` (source of truth for billing state),
+  `payment_events` (webhook audit log + idempotency, keyed on
+  `(maya_payment_id, payment_status)` since Maya's webhook payload has no
+  separate event id and the same payment id legitimately gets multiple
+  statuses over its life), and `checkout_sessions` (bridges a
+  `requestReferenceNumber` back to the user/plan that started it, so the
+  webhook doesn't have to depend on Maya echoing back arbitrary metadata).
+  Also added `profiles.plan` (`free`/`pro`/`team`) as a fast denormalized
+  read for gating checks, only ever written by the webhook handler.
+- New `lib/maya.ts` — Basic Auth header builder, `createCheckout()`,
+  `getPayment()`, and the webhook IP allowlist. Correction from the first
+  draft of the implementation plan: Maya doesn't sign webhooks with a
+  shared secret like Stripe — it restricts delivery to fixed source IPs
+  instead, verified against Maya's actual API docs before building this.
+- New `app/api/billing/checkout/route.ts` — verifies the caller's Supabase
+  access token server-side (not just trusting a client-supplied user id),
+  records a `checkout_sessions` row, then creates a Maya Checkout session
+  and returns the hosted checkout URL.
+- New `app/api/billing/webhook/route.ts` — checks the request's source IP
+  against Maya's allowlist, handles `PAYMENT_SUCCESS` (activates the plan),
+  `PAYMENT_FAILED` (marks `past_due`, plan stays active for a grace period —
+  exact length still an open decision), and `PAYMENT_CANCELLED` (marks
+  `canceled`). Idempotent against Maya's webhook retries.
+- New `app/billing/success/page.tsx` and `app/billing/cancel/page.tsx` —
+  the success page polls the user's own profile for a few seconds waiting
+  for the webhook to land, rather than claiming success the instant Maya
+  redirects back (the redirect alone doesn't confirm payment).
+- Settings → Billing now calls the real checkout route and redirects to
+  Maya; "Current: Free" badge reads the real `profile.plan` instead of
+  being hardcoded, and the "Current" badge on plan cards is accurate for
+  Pro/Team too, not just Free.
+- Content gating (premium lessons, AI Tutor) is intentionally **not** wired
+  up yet — still waiting on your call on exact Free-tier AI Tutor access
+  before building that part, per the implementation plan's open questions.
+- Verified: full `npx tsc --noEmit` pass. Request/response shapes checked
+  directly against Maya's official API docs (developers.maya.ph). A live
+  end-to-end call couldn't be tested from this sandbox's shell (its network
+  egress doesn't reach external payment APIs) — first real test will need
+  to happen from the deployed Vercel environment.
+
 ## 2026-08-14 — Trimmed redundant "Admin" wording, moved Recent errors to the top
 - The admin nav said "admin" three times over: a purple "Admin mode" badge
   in the sidebar, an "Admin Overview" nav label right below it, and an

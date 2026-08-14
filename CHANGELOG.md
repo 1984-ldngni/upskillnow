@@ -2,6 +2,29 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Dashboard recommends a specialization, not a random tool
+- "Recommended tools for you" was just `tools.slice(0, 3)` — the first three
+  tools alphabetically, identical for every learner regardless of what
+  they'd actually done. Replaced with a real recommendation tied to
+  Learning Paths ("specializations"):
+  - New `getRecommendedPath()` in `lib/data.ts` scores each Learning Path by
+    how many of its courses you've completed vs. merely started, and picks
+    the one you're closest to finishing (falling back to one you've
+    started at all).
+  - **In progress on a path** → "Continue your [Path] path — next up:
+    [course]" with a Continue button straight into that course.
+  - **Nothing started** → "Not sure where to start?" pointing at the
+    Find Your Path quiz.
+  - **Started courses, but none are part of a path** → different copy
+    ("Focus your learning with a specialization") instead of falsely
+    claiming you haven't started anything.
+  - **Every path finished** → congratulates you and points at the full
+    course library instead of repeating a path you've already done.
+- Known gap worth addressing next: only 7 of the 33 courses currently
+  belong to a Learning Path (across all 3 paths) — the 26 newer tool
+  courses aren't in any path yet, so this recommendation has nothing to
+  point most learners toward until that's expanded.
+
 ## 2026-08-14 — Colored icons app-wide
 - Most icons across the app were plain black/gray/muted, even ones meant to
   help with quick visual scanning (sidebar nav, Settings tabs, admin

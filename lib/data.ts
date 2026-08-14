@@ -430,6 +430,85 @@ export async function getLearningPathProgress(slug: string): Promise<LearningPat
   };
 }
 
+// Dashboard "recommended for you" — points the learner at a Learning Path
+// (specialization) instead of a random tool, on the theory that someone
+// dabbling in scattered courses is better served by a nudge toward
+// finishing a themed track than by an arbitrary "here's another tool."
+export type RecommendedPath = {
+  status: "in-progress" | "no-path-progress" | "all-completed";
+  path: LearningPath | null;
+  nextCourse: Course | null;
+  completedCount: number;
+  totalCount: number;
+  // True if the learner has started *any* course, even one that isn't part
+  // of a tracked path — lets the dashboard say "explore a specialization"
+  // instead of "you haven't started anything" when that'd be misleading.
+  hasAnyCourseProgress: boolean;
+};
+
+export async function getRecommendedPath(): Promise<RecommendedPath> {
+  const [paths, progressList] = await Promise.all([getLearningPaths(), getCoursesWithProgress()]);
+  const progressById = new Map(progressList.map((p) => [p.id, p]));
+  const hasAnyCourseProgress = progressList.some((p) => p.completedFreeLessons > 0);
+
+  const scored = paths.map((path) => {
+    let completedCount = 0;
+    let startedCount = 0;
+    let nextCourse: Course | null = null;
+    for (const c of path.courses) {
+      const progress = progressById.get(c.id);
+      const isComplete = progress?.certificateEarned ?? false;
+      const isStarted = (progress?.completedFreeLessons ?? 0) > 0;
+      if (isComplete) completedCount++;
+      if (isStarted) startedCount++;
+      if (!isComplete && !nextCourse) nextCourse = c;
+    }
+    return { path, nextCourse, completedCount, startedCount, totalCount: path.courses.length };
+  });
+
+  // Prefer a path that's partially done (closest to finishing first), then
+  // fall back to one that's merely been started, before giving up.
+  const partiallyDone = scored
+    .filter((s) => s.completedCount > 0 && s.completedCount < s.totalCount)
+    .sort((a, b) => b.completedCount / b.totalCount - a.completedCount / a.totalCount || b.startedCount - a.startedCount);
+  const merelyStarted = scored
+    .filter((s) => s.startedCount > 0 && s.completedCount === 0)
+    .sort((a, b) => b.startedCount - a.startedCount);
+
+  const pick = partiallyDone[0] ?? merelyStarted[0];
+  if (pick) {
+    return {
+      status: "in-progress",
+      path: pick.path,
+      nextCourse: pick.nextCourse,
+      completedCount: pick.completedCount,
+      totalCount: pick.totalCount,
+      hasAnyCourseProgress,
+    };
+  }
+
+  const allPathsComplete = scored.length > 0 && scored.every((s) => s.completedCount === s.totalCount);
+  if (allPathsComplete) {
+    return {
+      status: "all-completed",
+      path: null,
+      nextCourse: null,
+      completedCount: 0,
+      totalCount: 0,
+      hasAnyCourseProgress,
+    };
+  }
+
+  return {
+    status: "no-path-progress",
+    path: null,
+    nextCourse: null,
+    completedCount: 0,
+    totalCount: 0,
+    hasAnyCourseProgress,
+  };
+}
+
 // --- Admin-only data. RLS enforces that only rows the caller is actually
 // allowed to see come back (e.g. "Admins read all profiles"), so a non-admin
 // calling these just gets their own row / an empty list rather than an error.

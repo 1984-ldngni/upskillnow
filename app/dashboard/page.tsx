@@ -8,9 +8,16 @@ import { AppTopbar } from "@/components/app-topbar";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getCoursesWithProgress, getTools, type CourseProgress, type Tool } from "@/lib/data";
+import {
+  getCoursesWithProgress,
+  getTools,
+  getRecommendedPath,
+  type CourseProgress,
+  type Tool,
+  type RecommendedPath,
+} from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
-import { Award, ShieldCheck, BookOpen } from "lucide-react";
+import { Award, ShieldCheck, BookOpen, Route, Sparkles, PartyPopper } from "lucide-react";
 
 export default function DashboardPage() {
   return (
@@ -27,6 +34,7 @@ function DashboardPageInner() {
   const { loading: authLoading, userId, isAdmin } = useAuth();
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
+  const [recommendation, setRecommendation] = useState<RecommendedPath | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -42,9 +50,10 @@ function DashboardPageInner() {
       router.push("/admin");
       return;
     }
-    Promise.all([getCoursesWithProgress(), getTools()]).then(([c, t]) => {
+    Promise.all([getCoursesWithProgress(), getTools(), getRecommendedPath()]).then(([c, t, r]) => {
       setCourses(c);
       setTools(t);
+      setRecommendation(r);
       setDataLoading(false);
     });
   }, [authLoading, userId, isAdmin, isPreview, router]);
@@ -173,18 +182,82 @@ function DashboardPageInner() {
 
         <div className="mt-8">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading text-lg font-semibold">Recommended tools for you</h2>
-            <Link href="/tools" className="text-sm font-medium text-primary">Browse directory</Link>
+            <h2 className="font-heading text-lg font-semibold">Recommended for you</h2>
+            <Link href="/paths" className="text-sm font-medium text-primary">Browse paths</Link>
           </div>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {tools.slice(0, 3).map((t) => (
-              <Card key={t.slug}>
+          <div className="mt-4">
+            {recommendation?.status === "in-progress" && recommendation.path && (
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-base">{t.name}</CardTitle>
-                  <CardDescription>{t.description}</CardDescription>
+                  <div className="flex items-center gap-2">
+                    <Route className="h-4 w-4 text-emerald-500" />
+                    <CardTitle className="text-base">Continue your {recommendation.path.title} path</CardTitle>
+                  </div>
+                  <CardDescription>
+                    {recommendation.completedCount} / {recommendation.totalCount} courses complete
+                    {recommendation.nextCourse && ` — next up: ${recommendation.nextCourse.title}`}
+                  </CardDescription>
                 </CardHeader>
+                <CardContent className="flex flex-wrap gap-2">
+                  {recommendation.nextCourse && (
+                    <Link href={`/courses/${recommendation.nextCourse.slug}`}>
+                      <Button size="sm">Continue</Button>
+                    </Link>
+                  )}
+                  <Link href={`/paths/${recommendation.path.slug}`}>
+                    <Button size="sm" variant="outline">View path</Button>
+                  </Link>
+                </CardContent>
               </Card>
-            ))}
+            )}
+
+            {recommendation?.status === "all-completed" && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <PartyPopper className="h-4 w-4 text-amber-500" />
+                    <CardTitle className="text-base">You've completed every specialization</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Nicely done — every Learning Path is finished. Explore the tool directory or full
+                    course library for what's next.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex gap-2">
+                  <Link href="/courses">
+                    <Button size="sm" variant="outline">Browse all courses</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+
+            {recommendation?.status === "no-path-progress" && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-accent" />
+                    <CardTitle className="text-base">
+                      {recommendation.hasAnyCourseProgress
+                        ? "Focus your learning with a specialization"
+                        : "Not sure where to start?"}
+                    </CardTitle>
+                  </div>
+                  <CardDescription>
+                    {recommendation.hasAnyCourseProgress
+                      ? "You've been taking individual courses — a Learning Path bundles a few into a themed specialization with its own certificate."
+                      : "Take our 2-minute quiz and we'll recommend a Learning Path to start with."}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex gap-2">
+                  <Link href="/find-your-path">
+                    <Button size="sm">Take the quiz</Button>
+                  </Link>
+                  <Link href="/paths">
+                    <Button size="sm" variant="outline">Browse paths</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
         </main>

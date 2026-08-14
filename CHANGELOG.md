@@ -2,6 +2,26 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Find Your Path quiz now covers all 11 Learning Paths
+- The quiz was hardcoded to 3 fixed path slugs, with each answer picking
+  one directly and a majority vote deciding the result — that approach
+  doesn't scale to 11 paths.
+- Rewrote it as trait-based scoring instead: 7 questions, each option
+  nudges a small set of traits (writing, automation, enterprise, creative,
+  coding, healthcare, legal, productivity, plus two dedicated signals —
+  see below), and each of the 11 paths has its own trait profile it's
+  matched against. Adding a 12th path later just means adding a trait
+  profile, not rewriting every question.
+- Verified all 11 paths are actually reachable as the top result by
+  simulating answer patterns for each. Two needed a dedicated signal
+  because sharing traits with a "purer" path meant they could never win on
+  points alone: Frontier AI Models (shared "writing" with the Executive
+  Assistant path, which also scores on productivity) and Low-Code to
+  Enterprise Automation (shared "enterprise"/"automation" with the two
+  paths that score purely on one of those at a higher weight). Both got
+  their own trait plus a clearly-scoped quiz option so they're each
+  reachable when a learner's answers actually point that way.
+
 ## 2026-08-14 — 8 new Learning Paths cover the 26 previously-orphaned courses (data only, no code changes)
 - Reviewed the 26 tool courses that weren't in any Learning Path and found
   clean thematic groupings. Added 8 new paths:

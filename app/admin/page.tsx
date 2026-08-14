@@ -148,7 +148,7 @@ export default function AdminPage() {
                         startImpersonation({ id: u.id, name: u.fullName || u.email || "User" })
                       }
                     >
-                      <Eye className="mr-1 h-3.5 w-3.5" />
+                      <Eye className="mr-1 h-3.5 w-3.5 text-sky-500" />
                       View as
                     </Button>
                   </div>

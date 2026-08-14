@@ -52,7 +52,7 @@ export function AppTopbar() {
               onClick={() => setOpen(false)}
               className="flex items-center gap-2 px-4 py-2 text-sm font-medium hover:bg-secondary"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-4 w-4 text-primary" />
               Profile settings
             </Link>
             <button
@@ -63,7 +63,7 @@ export function AppTopbar() {
               }}
               className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-medium text-destructive hover:bg-secondary"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 text-destructive" />
               Sign out
             </button>
           </div>

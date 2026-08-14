@@ -15,10 +15,10 @@ import { PLANS, type Currency } from "@/lib/pricing";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { LogOut, Sun, Moon, Monitor, User, Bell, Palette, CreditCard } from "lucide-react";
 
-const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
+const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun; color: string }[] = [
+  { value: "light", label: "Light", icon: Sun, color: "text-amber-500" },
+  { value: "dark", label: "Dark", icon: Moon, color: "text-violet-500" },
+  { value: "system", label: "System", icon: Monitor, color: "text-sky-500" },
 ];
 
 export default function SettingsPage() {
@@ -105,19 +105,19 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="mt-6">
         <TabsList>
           <TabsTrigger value="profile">
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4 text-primary" />
             Profile
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            <Bell className="h-4 w-4" />
+            <Bell className="h-4 w-4 text-amber-500" />
             Notifications
           </TabsTrigger>
           <TabsTrigger value="theme">
-            <Palette className="h-4 w-4" />
+            <Palette className="h-4 w-4 text-accent" />
             Theme
           </TabsTrigger>
           <TabsTrigger value="billing">
-            <CreditCard className="h-4 w-4" />
+            <CreditCard className="h-4 w-4 text-emerald-500" />
             Billing
           </TabsTrigger>
         </TabsList>
@@ -174,7 +174,7 @@ export default function SettingsPage() {
                   router.push("/");
                 }}
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-4 w-4 text-destructive" />
                 Sign out
               </Button>
             </div>
@@ -227,13 +227,13 @@ export default function SettingsPage() {
               <p className="text-sm text-muted-foreground">Light, dark, or match your device.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              {THEME_OPTIONS.map(({ value, label, icon: Icon, color }) => (
                 <button key={value} onClick={() => setTheme(value)}>
                   <Badge
                     variant={theme === value ? "accent" : "outline"}
                     className="flex items-center gap-1.5 px-3 py-1.5"
                   >
-                    <Icon className="h-3.5 w-3.5" />
+                    <Icon className={`h-3.5 w-3.5 ${theme === value ? "" : color}`} />
                     {label}
                   </Badge>
                 </button>

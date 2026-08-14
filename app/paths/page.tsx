@@ -46,7 +46,7 @@ export default function PathsPage() {
           </div>
           <Link href="/find-your-path">
             <Button variant="outline" size="sm">
-              <Sparkles className="mr-2 h-4 w-4" />
+              <Sparkles className="mr-2 h-4 w-4 text-accent" />
               Not sure? Take the 2-minute quiz
             </Button>
           </Link>

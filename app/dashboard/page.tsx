@@ -66,7 +66,7 @@ function DashboardPageInner() {
         {isAdmin && (
           <div className="mb-4 flex items-center justify-between rounded-md border-2 border-black bg-secondary px-4 py-3 text-sm">
             <div className="flex items-center gap-2 font-bold">
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="h-4 w-4 text-violet-500" />
               You're previewing the learner dashboard as an admin.
             </div>
             <Link href="/admin">
@@ -156,7 +156,7 @@ function DashboardPageInner() {
                           {c.certificateEarned && (
                             <Link href={`/certificate/${c.slug}`}>
                               <Button size="sm" variant="outline">
-                                <Award className="mr-1 h-3.5 w-3.5" />
+                                <Award className="mr-1 h-3.5 w-3.5 text-amber-500" />
                                 Certificate
                               </Button>
                             </Link>

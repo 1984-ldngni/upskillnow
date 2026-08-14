@@ -2,6 +2,28 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Colored icons app-wide
+- Most icons across the app were plain black/gray/muted, even ones meant to
+  help with quick visual scanning (sidebar nav, Settings tabs, admin
+  actions). Gave semantic accent colors to icons that stand alone or lead a
+  label, app-wide:
+  - Sidebar nav: Overview (indigo), Tool Directory (orange), Courses (pink),
+    Paths (emerald), Admin Overview (violet), Preview as Learner (sky).
+  - Settings tabs: Profile (indigo), Notifications (amber), Theme (pink),
+    Billing (emerald); theme picker icons (Sun/Moon/Monitor) each got their
+    own color too.
+  - Sign out and account-menu icons: red for sign out, indigo for Profile
+    settings.
+  - Certificate/award icons (course cards, dashboard, quiz) — amber/gold.
+    Admin "View as" — sky. Landing page's 4 feature icons — violet, orange,
+    emerald, amber instead of all-indigo.
+  - Left icons that are already colored via their container alone (white
+    icons on solid indigo buttons, the pink impersonation banner, the amber
+    chat bubble) or that intentionally signal a locked/disabled state
+    (grayed-out Lock icon, "not earned yet" certificate icons) unchanged —
+    recoloring those would have hurt contrast or the state they're meant to
+    convey.
+
 ## 2026-08-14 — "Continue learning" only shows courses you've actually started
 - The dashboard's "Continue learning" section listed every course in the
   catalog (33 of them), not just ones with any progress — effectively a

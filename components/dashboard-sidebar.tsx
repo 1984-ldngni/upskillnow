@@ -7,14 +7,21 @@ import { Logo } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/auth-context";
 
+// Each nav item keeps its own icon color, active or not — a fixed color
+// per destination reads faster at a glance than a monochrome icon set.
 const learnerLinks = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/tools", label: "Tool Directory", icon: Wrench },
-  { href: "/courses", label: "Courses", icon: BookOpen },
-  { href: "/paths", label: "Paths", icon: Route },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, color: "text-primary" },
+  { href: "/tools", label: "Tool Directory", icon: Wrench, color: "text-orange-500" },
+  { href: "/courses", label: "Courses", icon: BookOpen, color: "text-accent" },
+  { href: "/paths", label: "Paths", icon: Route, color: "text-emerald-500" },
 ];
 
-const adminOnlyLink = { href: "/admin", label: "Admin Overview", icon: ShieldCheck };
+const adminOnlyLink = {
+  href: "/admin",
+  label: "Admin Overview",
+  icon: ShieldCheck,
+  color: "text-violet-400",
+};
 // Everything but "Overview" — admins get their own landing page
 // (Admin Overview, above) instead, and can still reach the learner
 // dashboard via "Preview as Learner" below when they actually want it.
@@ -64,7 +71,7 @@ export function DashboardSidebar({
         )}
 
         <nav className="flex flex-col gap-1">
-          {links.map(({ href, label, icon: Icon }) => {
+          {links.map(({ href, label, icon: Icon, color }) => {
             const active = pathname === href;
             return (
               <Link
@@ -80,7 +87,7 @@ export function DashboardSidebar({
                       : "text-foreground/70 hover:bg-secondary hover:text-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className={`h-4 w-4 ${color}`} />
                 {label}
               </Link>
             );
@@ -94,7 +101,7 @@ export function DashboardSidebar({
                 href="/dashboard?preview=1"
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-zinc-300 hover:bg-white/10 hover:text-white"
               >
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4 text-sky-400" />
                 Preview as Learner
               </Link>
             ) : (
@@ -102,7 +109,7 @@ export function DashboardSidebar({
                 href="/admin"
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-foreground/70 hover:bg-secondary hover:text-foreground"
               >
-                <ShieldCheck className="h-4 w-4" />
+                <ShieldCheck className="h-4 w-4 text-violet-500" />
                 Back to Admin
               </Link>
             )}

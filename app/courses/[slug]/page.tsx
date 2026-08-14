@@ -170,7 +170,7 @@ export default function CourseLessonPage() {
           {certificateEarned ? (
             <Link href={`/certificate/${course.slug}`}>
               <Button variant="outline">
-                <Award className="mr-2 h-4 w-4" />
+                <Award className="mr-2 h-4 w-4 text-amber-500" />
                 View your certificate
               </Button>
             </Link>

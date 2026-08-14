@@ -13,10 +13,30 @@ import { Zap, Brain, Workflow, Mic } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 const features = [
-  { icon: Brain, title: "AI Skill Assessment", desc: "Find your gaps and get a tailored learning roadmap." },
-  { icon: Workflow, title: "Real Automation Blueprints", desc: "Step-by-step Zapier, Make, and n8n workflows." },
-  { icon: Mic, title: "Audio Micro-Lessons", desc: "Learn on the go with 1–3 minute voice lessons." },
-  { icon: Zap, title: "Live Tool Directory", desc: "150+ AI & automation tools, filtered by industry." },
+  {
+    icon: Brain,
+    title: "AI Skill Assessment",
+    desc: "Find your gaps and get a tailored learning roadmap.",
+    color: "text-violet-500",
+  },
+  {
+    icon: Workflow,
+    title: "Real Automation Blueprints",
+    desc: "Step-by-step Zapier, Make, and n8n workflows.",
+    color: "text-orange-500",
+  },
+  {
+    icon: Mic,
+    title: "Audio Micro-Lessons",
+    desc: "Learn on the go with 1–3 minute voice lessons.",
+    color: "text-emerald-500",
+  },
+  {
+    icon: Zap,
+    title: "Live Tool Directory",
+    desc: "150+ AI & automation tools, filtered by industry.",
+    color: "text-amber-500",
+  },
 ];
 
 export default async function LandingPage() {
@@ -53,7 +73,7 @@ export default async function LandingPage() {
             {features.map((f) => (
               <Card key={f.title}>
                 <CardHeader>
-                  <f.icon className="h-6 w-6 text-primary" />
+                  <f.icon className={`h-6 w-6 ${f.color}`} />
                   <CardTitle className="mt-2 text-base">{f.title}</CardTitle>
                   <CardDescription>{f.desc}</CardDescription>
                 </CardHeader>

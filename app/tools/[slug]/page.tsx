@@ -53,7 +53,7 @@ export default async function ToolDetailPage({ params }: { params: { slug: strin
           {course && (
             <Link href={`/courses/${course.slug}`}>
               <Button variant="outline">
-                <GraduationCap className="mr-2 h-4 w-4" />
+                <GraduationCap className="mr-2 h-4 w-4 text-accent" />
                 Take the {tool.name} course
               </Button>
             </Link>

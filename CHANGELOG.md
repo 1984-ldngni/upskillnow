@@ -2,6 +2,23 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Admin sidebar now persists across every page
+- The dark "Admin mode" sidebar theme and admin nav links were keyed off the
+  URL (`pathname.startsWith("/admin")`), so an admin looked like a regular
+  learner the moment they left `/admin` — e.g. on `/dashboard`, `/tools`,
+  `/courses`, `/paths`. Confusing, since nothing about their account had
+  changed.
+- `DashboardSidebar` now bases the admin look on the account's actual role
+  (`isAdmin` from `useAuth()`), not the current route, so it's consistently
+  dark with the "Admin mode" badge everywhere. The nav now also always
+  includes both "Admin Overview" and the learner links (Overview, Tool
+  Directory, Courses, Paths), so admins can navigate anywhere without losing
+  their admin chrome.
+- The one exception: `/dashboard?preview=1` ("Preview as Learner") still
+  switches to the real light learner sidebar, via a new `previewingAsLearner`
+  prop passed only from that page — every other page doesn't touch this and
+  defaults to the admin's real role.
+
 ## 2026-08-14 — Profile menu + settings page, yellow "Ask us" bubble
 - Sign out was buried at the bottom of the left sidebar. Replaced it with a
   new `AppTopbar` (top-right account button, avatar-style initial) shown

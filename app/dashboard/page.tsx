@@ -59,7 +59,7 @@ function DashboardPageInner() {
 
   return (
     <div className="flex min-h-screen">
-      <DashboardSidebar />
+      <DashboardSidebar previewingAsLearner={isPreview} />
       <div className="flex min-h-screen flex-1 flex-col">
         <AppTopbar />
         <main className="flex-1 p-6">

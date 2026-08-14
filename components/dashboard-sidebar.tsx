@@ -14,32 +14,41 @@ const learnerLinks = [
   { href: "/paths", label: "Paths", icon: Route },
 ];
 
-const adminLinks = [{ href: "/admin", label: "Admin Overview", icon: ShieldCheck }];
+const adminOnlyLink = { href: "/admin", label: "Admin Overview", icon: ShieldCheck };
 
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  previewingAsLearner = false,
+}: {
+  // Only ever set by /dashboard when arrived at via the "Preview as Learner"
+  // link (?preview=1) — every other page renders this with the default, so
+  // an admin sees the same dark Admin sidebar no matter which page they're
+  // on, instead of it flipping back to the learner look on anything that
+  // isn't literally /admin.
+  previewingAsLearner?: boolean;
+}) {
   const pathname = usePathname();
   const { isAdmin } = useAuth();
-  const inAdminArea = pathname?.startsWith("/admin");
+  const adminMode = isAdmin && !previewingAsLearner;
 
-  const links = inAdminArea ? adminLinks : learnerLinks;
+  const links = adminMode ? [adminOnlyLink, ...learnerLinks] : learnerLinks;
 
   return (
     <aside
       className={`hidden w-56 shrink-0 flex-col border-r-2 border-black p-4 md:flex ${
-        inAdminArea ? "bg-foreground text-background" : ""
+        adminMode ? "bg-foreground text-background" : ""
       }`}
     >
       <div>
         <Link
           href="/"
           className={`mb-2 flex items-center rounded-md px-3 py-2 ${
-            inAdminArea ? "hover:bg-background/10" : "hover:bg-secondary"
+            adminMode ? "hover:bg-background/10" : "hover:bg-secondary"
           }`}
         >
           <Logo size="sm" />
         </Link>
 
-        {inAdminArea && (
+        {adminMode && (
           <div className="mb-4 px-3">
             <Badge variant="purple">Admin mode</Badge>
           </div>
@@ -53,7 +62,7 @@ export function DashboardSidebar() {
                 key={href}
                 href={href}
                 className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight transition-colors ${
-                  inAdminArea
+                  adminMode
                     ? active
                       ? "bg-background text-foreground"
                       : "text-background/70 hover:bg-background/10 hover:text-background"
@@ -70,8 +79,8 @@ export function DashboardSidebar() {
         </nav>
 
         {isAdmin && (
-          <div className={`mt-4 border-t-2 pt-4 ${inAdminArea ? "border-background/20" : "border-black/20"}`}>
-            {inAdminArea ? (
+          <div className={`mt-4 border-t-2 pt-4 ${adminMode ? "border-background/20" : "border-black/20"}`}>
+            {adminMode ? (
               <Link
                 href="/dashboard?preview=1"
                 className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-background/70 hover:bg-background/10 hover:text-background"

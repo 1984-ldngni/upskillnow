@@ -71,6 +71,24 @@ AI & automation tools) with its own course library. Building in three phases:
   don't match anything canned reach the AI, which keeps the bot feeling
   responsive rather than robotic while cutting expected cost dramatically.
 
+## 2026-08-14 — Full course library (data only, no code changes)
+- Added a dedicated course for every remaining tool in the directory — 26 new
+  courses (`claude-for-vas`, `gemini-for-vas`, `dalle-for-vas`,
+  `synthesia-for-vas`, `slack-for-vas`, `automation-anywhere-for-vas`,
+  `blue-prism-for-vas`, `power-automate-for-vas`, `pega-platform-for-vas`,
+  `uipath-for-vas`, `workfusion-for-vas`, `motion-for-vas`, `drift-for-vas`,
+  `klara-for-vas`, `luma-health-for-vas`, `tidio-for-vas`, `everlaw-for-vas`,
+  `relativity-for-vas`, `microsoft-copilot-365-for-vas`,
+  `claude-code-for-vas`, `github-copilot-for-vas`, `windsurf-for-vas`,
+  `elevenlabs-for-vas`, `kissflow-for-vas`, `make-for-vas`, `zapier-for-vas`),
+  each with 3 free + 3 Pro lessons and a 5-question quiz, same structure as
+  the original pilot batch.
+- Every one of the 31 tools in the directory now links to a matching course
+  (verified via `tools` LEFT JOIN `courses` — zero unmatched tools).
+- Total course count: 33 (2 general + 5 pilot batch + 26 new). No app code
+  changed — the tool↔course cross-linking and Learning Paths already read
+  live from Supabase, so this content shows up automatically.
+
 ---
 
 ## Earlier history (pre-changelog)

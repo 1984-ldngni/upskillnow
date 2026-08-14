@@ -2,6 +2,18 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Trimmed redundant "Admin" wording, moved Recent errors to the top
+- The admin nav said "admin" three times over: a purple "Admin mode" badge
+  in the sidebar, an "Admin Overview" nav label right below it, and an
+  "Admin" heading with a red "Admin only" badge on the page itself.
+  Trimmed it down: sidebar nav label is now just "Overview" (the "Admin
+  mode" badge already sets the context), and the page heading is now
+  "Console" — named for what the page does — with the redundant "Admin
+  only" badge removed.
+- Moved the "Recent errors" card from the bottom of `/admin` to the top,
+  above "All courses" / "All users" — it's the thing an admin most needs
+  to notice first, not something to scroll past two other cards to find.
+
 ## 2026-08-14 — Sidebar logo no longer links out to the landing page
 - The logo at the top of the signed-in sidebar (`DashboardSidebar`, shared
   by both learner and admin views) linked to `/`, the marketing landing

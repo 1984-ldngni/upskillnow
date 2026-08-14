@@ -81,14 +81,55 @@ export default function AdminPage() {
         <div className="flex flex-1 flex-col">
           <AppTopbar />
           <main className="flex-1 p-6">
-          <div className="flex items-center gap-2">
-            <h1 className="font-heading text-2xl font-black">Admin</h1>
-            <Badge variant="accent">Admin only</Badge>
-          </div>
+          {/* "Admin" + an "Admin only" badge, on a page already reachable
+              only via the dark admin sidebar with its own "Admin mode"
+              badge, said the same thing three times. Named for what the
+              page actually does instead. */}
+          <h1 className="font-heading text-2xl font-black">Console</h1>
           <p className="text-muted-foreground">
             Content management, user management, and troubleshooting tools — real Supabase data,
             not mock.
           </p>
+
+          {/* Moved above the courses/users grid — errors are the thing an
+              admin most needs to notice first, not something they should
+              have to scroll past two other cards to find. */}
+          <div className="mt-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                  <CardTitle className="text-base">Recent errors ({errorLogs.length})</CardTitle>
+                </div>
+                <CardDescription>
+                  Client-side errors, failed data fetches, and auth failures across every user —
+                  captured automatically as they happen, no need to reproduce them yourself.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {errorLogs.map((log) => (
+                  <div key={log.id} className="rounded-md border-2 border-black px-3 py-2 text-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={levelVariant[log.level]}>{log.level}</Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {log.userEmail ?? "Not signed in"}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{timeAgo(log.createdAt)}</span>
+                    </div>
+                    <p className="mt-1 font-medium">{log.message}</p>
+                    {log.path && <p className="text-xs text-muted-foreground">on {log.path}</p>}
+                  </div>
+                ))}
+                {errorLogs.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No errors logged yet — that's a good sign.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
@@ -155,43 +196,6 @@ export default function AdminPage() {
                 ))}
                 {users.length === 0 && (
                   <p className="text-sm text-muted-foreground">No users yet.</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mt-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-destructive" />
-                  <CardTitle className="text-base">Recent errors ({errorLogs.length})</CardTitle>
-                </div>
-                <CardDescription>
-                  Client-side errors, failed data fetches, and auth failures across every user —
-                  captured automatically as they happen, no need to reproduce them yourself.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {errorLogs.map((log) => (
-                  <div key={log.id} className="rounded-md border-2 border-black px-3 py-2 text-sm">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant={levelVariant[log.level]}>{log.level}</Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {log.userEmail ?? "Not signed in"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-muted-foreground">{timeAgo(log.createdAt)}</span>
-                    </div>
-                    <p className="mt-1 font-medium">{log.message}</p>
-                    {log.path && <p className="text-xs text-muted-foreground">on {log.path}</p>}
-                  </div>
-                ))}
-                {errorLogs.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    No errors logged yet — that's a good sign.
-                  </p>
                 )}
               </CardContent>
             </Card>

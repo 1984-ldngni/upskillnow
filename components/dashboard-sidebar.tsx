@@ -19,12 +19,15 @@ const learnerLinks = [
 
 const adminOnlyLink = {
   href: "/admin",
-  label: "Admin Overview",
+  // Just "Overview" — the "Admin mode" badge above and the dark sidebar
+  // theme already say "you're in the admin view," so repeating "Admin" in
+  // the nav label itself was redundant.
+  label: "Overview",
   icon: ShieldCheck,
   color: "text-violet-400",
 };
 // Everything but "Overview" — admins get their own landing page
-// (Admin Overview, above) instead, and can still reach the learner
+// (Overview, above) instead, and can still reach the learner
 // dashboard via "Preview as Learner" below when they actually want it.
 const adminCatalogLinks = learnerLinks.filter((link) => link.href !== "/dashboard");
 

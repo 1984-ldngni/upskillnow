@@ -2,13 +2,36 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { logClientError } from "@/lib/error-logger";
 
 export type CurrentProfile = {
   id: string;
   email: string | null;
   fullName: string | null;
   role: string;
+  notifyEmail: boolean;
+  notifyInApp: boolean;
 };
+
+const PROFILE_COLUMNS = "id, email, full_name, role, notify_email, notify_in_app";
+
+function mapProfileRow(row: {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  role: string;
+  notify_email: boolean | null;
+  notify_in_app: boolean | null;
+}): CurrentProfile {
+  return {
+    id: row.id,
+    email: row.email,
+    fullName: row.full_name,
+    role: row.role,
+    notifyEmail: row.notify_email ?? true,
+    notifyInApp: row.notify_in_app ?? true,
+  };
+}
 
 type AuthState = {
   loading: boolean;
@@ -39,19 +62,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return;
       }
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, full_name, role")
+        .select(PROFILE_COLUMNS)
         .eq("id", uid)
         .maybeSingle();
 
       if (cancelled) return;
+      if (error) {
+        // A profile fetch failure (RLS error, network blip, etc.) used to
+        // silently fall back to a null profile, which made a real account
+        // quietly look signed-out/non-admin with no trace of why. Log it so
+        // it shows up in the admin error log instead of vanishing.
+        logClientError(`Profile fetch failed: ${error.message}`, {
+          level: "error",
+          context: { code: error.code, uid },
+        });
+      }
       setUserId(uid);
-      setProfile(
-        data
-          ? { id: data.id, email: data.email, fullName: data.full_name, role: data.role }
-          : null
-      );
+      setProfile(data ? mapProfileRow(data) : null);
       setLoading(false);
     }
 
@@ -80,15 +109,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setProfile(null);
       return;
     }
-    const { data: row } = await supabase
+    const { data: row, error } = await supabase
       .from("profiles")
-      .select("id, email, full_name, role")
+      .select(PROFILE_COLUMNS)
       .eq("id", uid)
       .maybeSingle();
+    if (error) {
+      logClientError(`Profile refresh failed: ${error.message}`, {
+        level: "error",
+        context: { code: error.code, uid },
+      });
+    }
     setUserId(uid);
-    setProfile(
-      row ? { id: row.id, email: row.email, fullName: row.full_name, role: row.role } : null
-    );
+    setProfile(row ? mapProfileRow(row) : null);
   }
 
   return (

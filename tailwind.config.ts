@@ -53,9 +53,13 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        brutal: "5px 5px 0 0 #000",
-        "brutal-sm": "3px 3px 0 0 #000",
-        "brutal-hover": "2px 2px 0 0 #000",
+        // Tied to the --border CSS var (not a hardcoded color) so the
+        // offset "brutal" shadow flips from black to near-white along with
+        // the border color in dark mode instead of vanishing against a
+        // dark background.
+        brutal: "5px 5px 0 0 hsl(var(--border))",
+        "brutal-sm": "3px 3px 0 0 hsl(var(--border))",
+        "brutal-hover": "2px 2px 0 0 hsl(var(--border))",
       },
     },
   },

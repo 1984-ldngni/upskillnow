@@ -23,6 +23,26 @@
     --ring: 243 80% 56%;
     --radius: 0.375rem;
   }
+
+  .dark {
+    --background: 234 22% 9%;
+    --foreground: 45 25% 95%;
+    --card: 234 20% 14%;
+    --card-foreground: 45 25% 95%;
+    --primary: 243 85% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 234 16% 20%;
+    --secondary-foreground: 45 25% 95%;
+    --accent: 340 82% 65%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 234 16% 18%;
+    --muted-foreground: 234 10% 65%;
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 20% 90%;
+    --input: 45 20% 90%;
+    --ring: 243 85% 67%;
+  }
 }
 
 @layer base {
@@ -34,4 +54,18 @@
     background-image: radial-gradient(hsl(234 20% 80%) 1px, transparent 1px);
     background-size: 20px 20px;
   }
+  .dark body {
+    background-image: radial-gradient(hsl(234 16% 24%) 1px, transparent 1px);
+  }
+}
+
+/* The neo-brutalist look leans on hardcoded `border-black` (rather than the
+   `border` token) for the thick outline effect. That reads fine in light
+   mode where the token happens to also be near-black, but a literal black
+   border disappears against a dark background. Repaint it to the (now
+   near-white) --border token whenever the dark class is active, and make
+   the offset "brutal" shadows (see tailwind.config.ts, which reads
+   var(--border)) follow the same color automatically. */
+.dark .border-black {
+  border-color: hsl(var(--border));
 }

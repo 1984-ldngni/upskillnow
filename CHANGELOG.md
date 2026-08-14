@@ -2,6 +2,40 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Fixed profiles RLS recursion; Settings gets notifications, dark mode, billing
+- **Root-cause fix**: the "Admins read all profiles" RLS policy queried the
+  `profiles` table from inside its own `USING` clause, which Postgres flags
+  as infinite recursion (`42P17`) — this was silently breaking essentially
+  every profile read app-wide (client code caught the error and just fell
+  back to a null profile), which explains the blank email field on Settings,
+  the default "A" avatar, and admin status intermittently not sticking.
+  Replaced it with a `SECURITY DEFINER` `is_admin()` helper function, which
+  bypasses RLS internally and breaks the recursive cycle. Verified by
+  simulating an authenticated request against the old vs. new policy.
+- `auth-context.tsx` now surfaces profile-fetch errors via `logClientError`
+  (visible in the admin error log) instead of swallowing them silently, so
+  this class of bug won't disappear without a trace again.
+- **Notifications**: new `notify_email` / `notify_in_app` columns on
+  `profiles`. Settings has toggles for both (auto-saving), plus an SMS
+  toggle shown disabled with "Coming soon, once UpSkillNow is a native app."
+- **Theme**: real Light/Dark/System support, not just a stub. New
+  `ThemeProvider` (`lib/theme-context.tsx`) resolves the theme, listens for
+  OS changes while on "System," and persists the choice to `localStorage`
+  per device. A blocking inline script in `app/layout.tsx` applies the dark
+  class before first paint so there's no flash. `app/globals.css` gained a
+  `.dark` CSS-variable palette; since the neo-brutalist look uses hardcoded
+  `border-black` rather than the `border` token, added a `.dark .border-black`
+  repaint rule, and the offset "brutal" shadows (`tailwind.config.ts`) now
+  read `hsl(var(--border))` instead of a hardcoded `#000` so they follow suit
+  instead of vanishing against a dark background. The Admin sidebar's dark
+  styling was switched to fixed `zinc-900`/`zinc-50` colors (was using the
+  theme-reactive foreground/background tokens) so "Admin mode" still reads
+  as a distinct dark surface even when the site's own dark theme is on.
+- **Billing**: read-only card showing the current plan (Free) with a "View
+  plans & upgrade" link to `/#pricing`. No payment processing yet — there's
+  no Stripe integration in the app; this is intentionally just a status +
+  upsell link for now.
+
 ## 2026-08-14 — Admin sidebar now persists across every page
 - The dark "Admin mode" sidebar theme and admin nav links were keyed off the
   URL (`pathname.startsWith("/admin")`), so an admin looked like a regular

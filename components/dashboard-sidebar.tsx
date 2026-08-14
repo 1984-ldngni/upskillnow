@@ -35,14 +35,19 @@ export function DashboardSidebar({
   return (
     <aside
       className={`hidden w-56 shrink-0 flex-col border-r-2 border-black p-4 md:flex ${
-        adminMode ? "bg-foreground text-background" : ""
+        // Fixed dark colors here, not the theme-reactive foreground/background
+        // tokens — the Admin sidebar is meant to look distinctly dark as an
+        // "you're in admin mode" signal regardless of whether the site's own
+        // light/dark theme is on, so it shouldn't flip to light just because
+        // the user has dark mode enabled.
+        adminMode ? "bg-zinc-900 text-zinc-50" : ""
       }`}
     >
       <div>
         <Link
           href="/"
           className={`mb-2 flex items-center rounded-md px-3 py-2 ${
-            adminMode ? "hover:bg-background/10" : "hover:bg-secondary"
+            adminMode ? "hover:bg-white/10" : "hover:bg-secondary"
           }`}
         >
           <Logo size="sm" />
@@ -64,8 +69,8 @@ export function DashboardSidebar({
                 className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight transition-colors ${
                   adminMode
                     ? active
-                      ? "bg-background text-foreground"
-                      : "text-background/70 hover:bg-background/10 hover:text-background"
+                      ? "bg-white text-zinc-900"
+                      : "text-zinc-300 hover:bg-white/10 hover:text-white"
                     : active
                       ? "bg-primary text-primary-foreground"
                       : "text-foreground/70 hover:bg-secondary hover:text-foreground"
@@ -79,11 +84,11 @@ export function DashboardSidebar({
         </nav>
 
         {isAdmin && (
-          <div className={`mt-4 border-t-2 pt-4 ${adminMode ? "border-background/20" : "border-black/20"}`}>
+          <div className={`mt-4 border-t-2 pt-4 ${adminMode ? "border-white/20" : "border-black/20"}`}>
             {adminMode ? (
               <Link
                 href="/dashboard?preview=1"
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-background/70 hover:bg-background/10 hover:text-background"
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-bold uppercase tracking-tight text-zinc-300 hover:bg-white/10 hover:text-white"
               >
                 <Eye className="h-4 w-4" />
                 Preview as Learner

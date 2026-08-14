@@ -2,8 +2,22 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ImpersonationProvider } from "@/lib/impersonation-context";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { GlobalErrorListener } from "@/components/global-error-listener";
 import { ChatWidget } from "@/components/chat-widget";
+
+// Runs before React hydrates so the dark class is already on <html> by the
+// time the page paints — without this, a dark-mode user would see a flash
+// of the light theme on every load.
+const THEME_INIT_SCRIPT = `
+(function () {
+  try {
+    var stored = localStorage.getItem("upskillnow-theme");
+    var dark = stored === "dark" || (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if (dark) document.documentElement.classList.add("dark");
+  } catch (e) {}
+})();
+`;
 
 // Note: using system font stacks (see tailwind.config.ts) instead of next/font/google
 // so builds don't depend on fetching fonts.googleapis.com at build time. Swap in
@@ -18,15 +32,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
-        <AuthProvider>
-          <ImpersonationProvider>
-            <GlobalErrorListener />
-            {children}
-            <ChatWidget />
-          </ImpersonationProvider>
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
+      <body className="font-sans antialiased" suppressHydrationWarning>
+        <ThemeProvider>
+          <AuthProvider>
+            <ImpersonationProvider>
+              <GlobalErrorListener />
+              {children}
+              <ChatWidget />
+            </ImpersonationProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

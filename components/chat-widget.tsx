@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MarkdownLite } from "@/components/markdown-lite";
 import { MessageCircle, X, Send } from "lucide-react";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
@@ -33,9 +34,21 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
+      // Attach the signed-in user's token if there is one, so the server can
+      // check their plan — anonymous requests still work fine (they just
+      // only get FAQ answers, not the full AI Tutor).
+      const supabase = getSupabaseClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { "content-type": "application/json" };
+      if (session?.access_token) {
+        headers.authorization = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: JSON.stringify({ messages: nextMessages }),
       });
       const data = await res.json();

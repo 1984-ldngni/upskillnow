@@ -2,6 +2,48 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — Content gating: premium lessons + AI Tutor
+- **Premium lesson completions, DB-level.** The lesson viewer already hid
+  the "Mark complete" button for premium lessons for Free users (shows
+  Lock + "Upgrade" instead), but the `lesson_completions` RLS policy only
+  checked `auth.uid() = user_id` — nothing stopped a Free user from writing
+  a completion row directly via the API, bypassing the UI. New migration
+  `gate_premium_lesson_completions_by_plan` splits the old catch-all policy
+  into separate select/delete (still open to the row's owner) and
+  insert/update policies that also require `profiles.plan in ('pro',
+  'team')` whenever the lesson being completed is premium.
+- **AI Tutor, split by design decision.** The "Ask us" chat bubble
+  (`components/chat-widget.tsx`) is one component mounted on every page —
+  it doubles as the pre-signup marketing FAQ bot and the "AI Tutor" the
+  pricing copy promises Pro/Team. Decision: keep the canned-FAQ path
+  (`lib/chat-faq.ts`) open to everyone, including anonymous visitors, since
+  it helps pre-signup conversion; gate only the live AI model call behind a
+  signed-in Pro/Team plan. `app/api/chat/route.ts` now reads the caller's
+  Supabase access token (sent as a Bearer header from the widget, same
+  pattern as the billing routes), looks up `profiles.plan` via the service
+  role client, and returns a friendly upgrade/sign-in prompt instead of
+  calling Anthropic if the caller isn't signed in or isn't Pro/Team. FAQ
+  matches still short-circuit before any of this runs, so most traffic is
+  unaffected.
+- Verified: full `npx tsc --noEmit` pass.
+
+## 2026-08-15 — Fixed live checkout failure, confirmed working
+- Live "Choose Pro/Team" was failing with "Couldn't start checkout. Please
+  try again." Root cause: `SUPABASE_SERVICE_ROLE_KEY` was never set in
+  Vercel, so `getServiceRoleClient()` (`lib/supabase/server.ts`) threw as
+  soon as the checkout route tried to write a `checkout_sessions` row — by
+  design, that helper has no fallback value since it's a real secret. User
+  added the key in Vercel and redeployed. Confirmed working: clicking
+  Choose Pro/Team now successfully reaches Maya's hosted sandbox checkout
+  page. No code changes — env var only.
+- Full outstanding-work punch list moved into
+  `Maya_Billing_Implementation_Plan.md` (Status section) so nothing gets
+  lost: an actual sandbox payment has not yet been run end-to-end through
+  the webhook, no scheduled downgrade job exists, no content gating yet,
+  still on Maya's shared sandbox keys, DTI registration for LEX.CR8.IT
+  still in progress, and the section 8 testing checklist is still
+  untouched. See that doc for the full list with checkboxes.
+
 ## 2026-08-15 — Manage subscription / Cancel plan
 - Settings → Billing now shows real subscription details for paying users:
   renewal date, payment method on file, and a "Cancel plan" button. New

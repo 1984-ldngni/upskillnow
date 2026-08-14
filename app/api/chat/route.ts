@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { matchFaq } from "@/lib/chat-faq";
+import { getUserFromAccessToken, getServiceRoleClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,6 +16,15 @@ const MAX_HISTORY_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 1000;
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+// The FAQ bot above stays open to everyone (anonymous visitors included) —
+// it's the pre-signup marketing assistant. The full AI Tutor (this file's
+// live Anthropic call) is a paid feature per the pricing copy, so anything
+// that falls through to it needs a signed-in Pro/Team user first.
+const SIGN_IN_PROMPT =
+  "That's a great question for our full AI Tutor, which comes with Pro and Team plans — sign in (or create a free account) and upgrade to unlock it. In the meantime, I can answer questions about our tools, courses, learning paths, and pricing right here.";
+const UPGRADE_PROMPT =
+  "That's exactly what our full AI Tutor is for — it's included with Pro and Team plans. Upgrade any time from Settings → Billing to unlock it. I can still help with questions about our tools, courses, learning paths, and pricing on the Free plan.";
 
 // Pulls a compact snapshot of the live catalog so the assistant's answers stay
 // accurate as tools/courses/paths are added, without needing to hardcode or
@@ -73,6 +83,35 @@ export async function POST(req: Request) {
       if (faqMatch) {
         return NextResponse.json({ reply: faqMatch.answer, source: "faq" });
       }
+    }
+
+    // Past this point we're about to call the real AI model — gate it to
+    // signed-in Pro/Team users. Anonymous visitors and Free-plan users get a
+    // friendly upgrade prompt instead, rather than a silent failure.
+    const authHeader = req.headers.get("authorization");
+    const accessToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const user = await getUserFromAccessToken(accessToken);
+    if (!user) {
+      return NextResponse.json({ reply: SIGN_IN_PROMPT, source: "gate" });
+    }
+
+    let plan: string | null = "free";
+    try {
+      const supabase = getServiceRoleClient();
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+      plan = profile?.plan ?? "free";
+    } catch (err) {
+      // If SUPABASE_SERVICE_ROLE_KEY isn't configured, fail closed (treat as
+      // free) rather than crashing the whole chat route.
+      console.error("Chat plan lookup failed:", err);
+    }
+
+    if (plan !== "pro" && plan !== "team") {
+      return NextResponse.json({ reply: UPGRADE_PROMPT, source: "gate" });
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;

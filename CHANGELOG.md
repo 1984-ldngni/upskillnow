@@ -2,6 +2,19 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Billing tab shows plans inline instead of linking out
+- The Billing tab's "View plans & upgrade" button sent signed-in users to
+  `/#pricing` on the public landing page — jarring, and not what "billing"
+  should feel like from inside the app.
+- Extracted the plan data (Free/Pro/Team, USD + PHP) out of
+  `pricing-section.tsx` into a shared `lib/pricing.ts` so the landing page
+  and Settings can't drift out of sync with each other.
+- Billing tab now renders the plan cards directly, with the same USD/PHP
+  toggle as the landing page, a "Current: Free" badge, and "Choose Pro/Team"
+  buttons — no navigation. Since there's still no real Stripe integration,
+  choosing a paid plan shows an honest inline note ("isn't wired up to real
+  billing yet") rather than pretending to charge anything.
+
 ## 2026-08-14 — Settings page: folder tabs instead of one long scroll
 - New `components/ui/tabs.tsx` — a small hand-rolled tabs primitive (no Radix
   dependency) styled like manila-folder tabs: the active tab sits flush

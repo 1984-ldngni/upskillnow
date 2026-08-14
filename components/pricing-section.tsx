@@ -5,31 +5,9 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PLANS, type Currency } from "@/lib/pricing";
 
-export type Currency = "USD" | "PHP";
-
-type Plan = { name: string; price: string; blurb: string };
-
-const plans: Record<Currency, Plan[]> = {
-  USD: [
-    { name: "Free", price: "$0", blurb: "Explore the tool directory and one starter course." },
-    { name: "Pro", price: "$9/mo", blurb: "Full course library, quizzes, and AI Tutor access." },
-    {
-      name: "Team",
-      price: "$24/mo",
-      blurb: "Everything in Pro, for teams of 2–4 — your 4th seat is on us.",
-    },
-  ],
-  PHP: [
-    { name: "Free", price: "₱0", blurb: "Explore the tool directory and one starter course." },
-    { name: "Pro", price: "₱495/mo", blurb: "Full course library, quizzes, and AI Tutor access." },
-    {
-      name: "Team",
-      price: "₱1,495/mo",
-      blurb: "Everything in Pro, for teams of 2–4 — your 4th seat is on us.",
-    },
-  ],
-};
+export type { Currency };
 
 export function PricingSection({ defaultCurrency }: { defaultCurrency: Currency }) {
   const [currency, setCurrency] = useState<Currency>(defaultCurrency);
@@ -49,7 +27,7 @@ export function PricingSection({ defaultCurrency }: { defaultCurrency: Currency 
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {plans[currency].map((p) => (
+        {PLANS[currency].map((p) => (
           <Card key={p.name}>
             <CardHeader>
               <CardTitle>{p.name}</CardTitle>

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth-context";
 import { useTheme, type Theme } from "@/lib/theme-context";
+import { PLANS, type Currency } from "@/lib/pricing";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { LogOut, Sun, Moon, Monitor, Sparkles, User, Bell, Palette, CreditCard } from "lucide-react";
+import { LogOut, Sun, Moon, Monitor, User, Bell, Palette, CreditCard } from "lucide-react";
 
 const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Light", icon: Sun },
@@ -34,6 +34,9 @@ export default function SettingsPage() {
   const [notifyEmail, setNotifyEmail] = useState(true);
   const [notifyInApp, setNotifyInApp] = useState(true);
   const [notifSaving, setNotifSaving] = useState(false);
+
+  const [billingCurrency, setBillingCurrency] = useState<Currency>("PHP");
+  const [chosenPlan, setChosenPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -239,19 +242,63 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="billing" className="space-y-4">
-            <div className="flex items-center gap-2">
-              <h2 className="font-heading text-lg font-black">Billing</h2>
-              <Badge variant="outline">Free plan</Badge>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-heading text-lg font-black">Billing</h2>
+                  <Badge variant="green">Current: Free</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">Pick a plan to see what changes.</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setBillingCurrency("USD")} aria-pressed={billingCurrency === "USD"}>
+                  <Badge variant={billingCurrency === "USD" ? "accent" : "outline"}>USD ($)</Badge>
+                </button>
+                <button onClick={() => setBillingCurrency("PHP")} aria-pressed={billingCurrency === "PHP"}>
+                  <Badge variant={billingCurrency === "PHP" ? "accent" : "outline"}>PHP (₱)</Badge>
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              You're on the Free plan. Upgrade to Pro or Team for full-length lessons and more.
-            </p>
-            <Link href="/#pricing">
-              <Button variant="outline">
-                <Sparkles className="mr-2 h-4 w-4" />
-                View plans & upgrade
-              </Button>
-            </Link>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {PLANS[billingCurrency].map((p) => {
+                const isCurrent = p.name === "Free";
+                return (
+                  <div
+                    key={p.name}
+                    className={`flex flex-col justify-between rounded-md border-2 border-black p-3 ${
+                      isCurrent ? "bg-secondary" : "bg-card"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-heading text-sm font-black uppercase">{p.name}</p>
+                        {isCurrent && <Badge variant="green">Current</Badge>}
+                      </div>
+                      <p className="mt-1 font-heading text-xl font-black">{p.price}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{p.blurb}</p>
+                    </div>
+                    {!isCurrent && (
+                      <Button
+                        size="sm"
+                        variant={chosenPlan === p.name ? "secondary" : "outline"}
+                        className="mt-3"
+                        onClick={() => setChosenPlan(p.name)}
+                      >
+                        {chosenPlan === p.name ? "Selected" : `Choose ${p.name}`}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {chosenPlan && (
+              <p className="text-xs text-muted-foreground">
+                Upgrading to {chosenPlan} isn't wired up to real billing yet — we'll email you the
+                moment it's ready to go.
+              </p>
+            )}
           </TabsContent>
         </div>
       </Tabs>

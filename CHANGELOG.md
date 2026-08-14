@@ -2,6 +2,20 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-14 — Preview-mode banner now shows on every page, redundant sidebar "Back to Admin" removed
+- The "You're previewing the learner dashboard as an admin" banner (with
+  its "Back to Admin" button) only rendered on `/dashboard`, so navigating
+  to Tools, Courses, Paths, or Settings while previewing lost the visible
+  way back — the only exit was a "Back to Admin" link buried at the bottom
+  of the sidebar.
+- Extracted the banner into `components/preview-mode-banner.tsx` and
+  rendered it from `AppShell` (so it now shows on every signed-in catalog
+  page) and from `/dashboard` directly. It's the single "Back to Admin"
+  control now.
+- Removed the sidebar's own "Back to Admin" link since the banner made it
+  redundant — the sidebar keeps just the "Preview as Learner" entry point,
+  which only shows in admin mode.
+
 ## 2026-08-14 — Preview as Learner no longer resets when navigating away from Dashboard
 - Bug: "Preview as Learner" was tracked only as a `?preview=1` query param on
   `/dashboard`, passed down as a prop to the sidebar. Every other page the

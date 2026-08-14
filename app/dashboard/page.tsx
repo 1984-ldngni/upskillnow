@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
+import { PreviewModeBanner } from "@/components/preview-mode-banner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,7 @@ import {
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
 import { usePreviewMode } from "@/lib/preview-mode-context";
-import { Award, ShieldCheck, BookOpen, Route, Sparkles, PartyPopper } from "lucide-react";
+import { Award, BookOpen, Route, Sparkles, PartyPopper } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -29,7 +30,7 @@ export default function DashboardPage() {
   // covers the brief window before the sessionStorage read on mount
   // completes, so a hard reload while previewing doesn't briefly look like
   // "not previewing" and bounce the admin to /admin.
-  const { previewingAsLearner, exitPreview, loading: previewLoading } = usePreviewMode();
+  const { previewingAsLearner, loading: previewLoading } = usePreviewMode();
   const [courses, setCourses] = useState<CourseProgress[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [recommendation, setRecommendation] = useState<RecommendedPath | null>(null);
@@ -65,23 +66,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      <DashboardSidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <AppTopbar />
-        <main className="flex-1 p-6">
-        {isAdmin && (
-          <div className="mb-4 flex items-center justify-between rounded-md border-2 border-black bg-secondary px-4 py-3 text-sm">
-            <div className="flex items-center gap-2 font-bold">
-              <ShieldCheck className="h-4 w-4 text-violet-500" />
-              You're previewing the learner dashboard as an admin.
-            </div>
-            <Link href="/admin" onClick={exitPreview}>
-              <Button size="sm" variant="outline">Back to Admin</Button>
-            </Link>
-          </div>
-        )}
-
+    <div className="flex min-h-screen flex-col">
+      <PreviewModeBanner />
+      <div className="flex flex-1">
+        <DashboardSidebar />
+        <div className="flex flex-1 flex-col">
+          <AppTopbar />
+          <main className="flex-1 p-6">
         <h1 className="font-heading text-2xl font-black">Welcome back</h1>
         <p className="text-muted-foreground">Here's where you left off.</p>
 
@@ -258,7 +249,8 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-        </main>
+          </main>
+        </div>
       </div>
     </div>
   );

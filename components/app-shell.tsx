@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { AppTopbar } from "@/components/app-topbar";
+import { PreviewModeBanner } from "@/components/preview-mode-banner";
 import { useAuth } from "@/lib/auth-context";
 
 // Signed-out visitors get the marketing chrome (top nav + footer) so the
@@ -31,11 +32,14 @@ export function AppShell({
 
   if (userId) {
     return (
-      <div className="flex min-h-screen">
-        <DashboardSidebar />
-        <div className="flex min-h-screen flex-1 flex-col">
-          <AppTopbar />
-          <main className={`mx-auto w-full flex-1 px-6 py-12 ${maxWidth}`}>{children}</main>
+      <div className="flex min-h-screen flex-col">
+        <PreviewModeBanner />
+        <div className="flex flex-1">
+          <DashboardSidebar />
+          <div className="flex flex-1 flex-col">
+            <AppTopbar />
+            <main className={`mx-auto w-full flex-1 px-6 py-12 ${maxWidth}`}>{children}</main>
+          </div>
         </div>
       </div>
     );

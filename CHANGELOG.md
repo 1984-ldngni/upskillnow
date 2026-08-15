@@ -2,6 +2,80 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — Course content quality review (data only, no code changes)
+- Full review of all 33 courses across four dimensions: quiz accuracy,
+  lesson title specificity/progression, level (Beginner/Intermediate/
+  Advanced) consistency, and free/Pro split fairness.
+- **Retired** `workflow-automation-with-zapier` ("Workflow Automation with
+  Zapier & Make") — orphaned legacy content from before the standardized
+  course format, `tool_slug` was null (never linked from the tool
+  directory), no quiz, no free/Pro split, and fully superseded by the
+  dedicated `zapier-for-vas` and `make-for-vas` courses. Deleted the
+  course and its 3 lessons; confirmed no references existed in
+  `learning_path_courses`, `user_progress`, `quiz_attempts`, or
+  `lesson_completions` before deleting.
+- **Fixed**: `windsurf-for-vas` was labeled Beginner while `cursor-for-vas`
+  and `github-copilot-for-vas` — the same category of tool (AI-assisted
+  code editor), nearly identical lesson structure and audience — were both
+  Intermediate. Bumped Windsurf to Intermediate to match its actual peers.
+- **Fixed**: `ai-fundamentals-for-vas` (the designated Free-tier starter
+  course) only had 2 quiz questions versus the standard 5 everywhere else
+  — thin for a pass/fail certificate gate, and it's the first thing most
+  people see. Added 3 more questions in the same style, covering the
+  course's existing 3 lesson topics (choosing the right tool, reviewing AI
+  output, what makes a workflow "automated").
+- **Reviewed, no issues found**: quiz answer-index correctness across all
+  ~165 questions (every `answer_index` matched the objectively correct
+  option); lesson title specificity and progression (all 32 standardized
+  courses follow a consistent, sensible arc — context → core skill →
+  practical use case → [Pro] advanced feature → integration/scale →
+  building a repeatable client workflow); free/Pro split fairness (the 3
+  free lessons consistently deliver real standalone value, the 3 Pro
+  lessons consistently add advanced/workflow value that justifies
+  upgrading — no course found short-changing either tier).
+- Total course count: 33 → 32 after retiring the duplicate.
+
+## 2026-08-15 — Real recurring billing scaffolding via Maya Vault
+- Context: the existing Checkout flow is "pay again next period," not
+  actual auto-renewal. Lex confirmed the goal is genuine SaaS billing —
+  charged automatically each month unless canceled — which needs Maya
+  Vault (save a card, charge it again later) plus our own scheduler, since
+  Maya has no built-in subscription concept (confirmed in their docs).
+  Lex can't do anything on Maya's end right now (PBM Business Profile
+  blocker), so this is everything buildable on our end in the meantime.
+- Migration `add_vault_recurring_billing_columns` — added
+  `maya_customer_id`, `maya_card_token_id`, `card_brand`, `card_last4`,
+  `failed_renewal_attempts`, `next_billing_attempt_at` to `subscriptions`.
+- `lib/maya.ts` — added `createVaultCustomer()`, `createCardOfCustomer()`,
+  `createCustomerPayment()`, matching Maya's Create Customer / Create Card
+  of Customer / Create Customer Payment endpoints (field names confirmed
+  live against `developers.maya.ph` docs).
+- New `app/api/cron/renew-subscriptions/route.ts` + `vercel.json` (daily
+  Vercel Cron, needs `CRON_SECRET` set in Vercel to actually run). Does
+  two things: (1) charges any subscription's vaulted card again once its
+  period ends — currently a no-op since nothing populates a card token
+  yet, see below; (2) downgrades `profiles.plan` back to `free` for
+  canceled subscriptions past their period end, subscriptions that
+  exhausted 3 renewal retries, or non-vaulted subscriptions nobody
+  manually renewed. **Part 2 is fully live today** — this is what
+  actually enforces "you stop being Pro once you stop paying," which
+  nothing did before this.
+- `app/api/billing/webhook/route.ts` — `PAYMENT_SUCCESS` now also sets
+  `next_billing_attempt_at` and resets `failed_renewal_attempts`;
+  `PAYMENT_FAILED` now increments `failed_renewal_attempts` and schedules
+  a retry in 2 days instead of just marking `past_due` with no follow-up.
+- **Deliberately not built yet: the card-capture form.** Real auto-charge
+  needs a form that tokenizes raw card details client-side via Maya's
+  Create Payment Token endpoint before any card can be vaulted. The exact
+  field names for that request weren't visible in Maya's public docs (the
+  interactive schema needs a logged-in session) — rather than guess at a
+  shape for a form handling real card numbers, this is parked until
+  confirmed directly from Maya's API reference once sandbox access
+  exists. Full spec for the remaining 3 steps is in
+  `Maya_Billing_Implementation_Plan.md` section 5A.
+- Verified: full `npx tsc --noEmit` pass. Not deployable-tested (no
+  working Maya sandbox keys right now — see the parked PBM blocker).
+
 ## 2026-08-15 — Content gating: premium lessons + AI Tutor
 - **Premium lesson completions, DB-level.** The lesson viewer already hid
   the "Mark complete" button for premium lessons for Free users (shows

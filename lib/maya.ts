@@ -122,3 +122,137 @@ export function mapPaymentMethod(fundSourceType: string | undefined): "card" | "
   if (fundSourceType === "qrph") return "gcash";
   return null;
 }
+
+// --- Maya Vault: real recurring billing (charge a saved card again each
+// period via our own scheduler) instead of the one-time Checkout flow
+// above. Docs: https://developers.maya.ph/docs/maya-vault
+//
+// Confirmed against Maya's docs (2026-08-15): "If you're implementing
+// automated recurring payments or subscriptions, you'll need to develop
+// your own scheduler and use Maya Vault" — Maya has no built-in
+// subscription concept, this cron-based approach is the correct pattern.
+// 3DS is only required on a customer's *first* payment; subsequent charges
+// against a vaulted card (via Create Customer Payment) go through headless
+// with no customer interaction needed, unless a merchant explicitly asks
+// Maya to turn 3DS on for every vaulted charge.
+//
+// NOT yet wired up to a checkout flow — see the "Card capture form" note
+// in Maya_Billing_Implementation_Plan.md for why: it requires exact field
+// names for Create Payment Token's card object, which weren't resolvable
+// from the public docs (the interactive schema needs a logged-in session).
+// Do not guess at that shape; get it from the API reference directly
+// before building the tokenization form.
+
+export type CreateVaultCustomerParams = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+};
+
+export type MayaCustomer = { id: string; [key: string]: unknown };
+
+export async function createVaultCustomer(params: CreateVaultCustomerParams): Promise<MayaCustomer> {
+  const res = await fetch(`${MAYA_API_BASE_URL}/payments/v1/customers`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: basicAuthHeader(getSecretKey()),
+    },
+    body: JSON.stringify({
+      firstName: params.firstName,
+      lastName: params.lastName,
+      contact: params.email ? { email: params.email } : undefined,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`Maya Create Customer failed (${res.status}): ${errText}`);
+  }
+
+  return res.json();
+}
+
+export type CreateCardOfCustomerResponse = {
+  cardTokenId: string;
+  verificationUrl?: string;
+  card?: { last4?: string; brand?: string; issuer?: string; [key: string]: unknown };
+  [key: string]: unknown;
+};
+
+// Links a tokenized card (paymentTokenId, from Create Payment Token — the
+// still-unbuilt client-side step) to a Vault customer record.
+export async function createCardOfCustomer(
+  customerId: string,
+  paymentTokenId: string,
+  redirectUrl?: { success: string; failure: string }
+): Promise<CreateCardOfCustomerResponse> {
+  const res = await fetch(`${MAYA_API_BASE_URL}/payments/v1/customers/${customerId}/cards`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: basicAuthHeader(getSecretKey()),
+    },
+    body: JSON.stringify({ paymentTokenId, redirectUrl }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`Maya Create Card of Customer failed (${res.status}): ${errText}`);
+  }
+
+  return res.json();
+}
+
+export type CreateCustomerPaymentParams = {
+  amount: number;
+  currency: "PHP" | "USD";
+  description: string;
+  requestReferenceNumber: string;
+  redirectUrl: { success: string; failure: string; cancel: string };
+  metadata?: Record<string, string>;
+};
+
+export type CreateCustomerPaymentResponse = {
+  id: string;
+  status?: string;
+  // Present only when 3DS is required (the customer's first payment on
+  // this card). Absent on later, headless renewal charges.
+  verificationUrl?: string;
+  [key: string]: unknown;
+};
+
+// Charges a vaulted card — used both for the customer's first payment
+// (which vaults the card and typically requires a 3DS redirect) and for
+// every automatic renewal after that (no redirect needed in the common
+// case). See app/api/cron/renew-subscriptions/route.ts for the scheduler
+// that calls this on each billing period.
+export async function createCustomerPayment(
+  customerId: string,
+  cardToken: string,
+  params: CreateCustomerPaymentParams
+): Promise<CreateCustomerPaymentResponse> {
+  const res = await fetch(
+    `${MAYA_API_BASE_URL}/payments/v1/customers/${customerId}/cards/${cardToken}/payments`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: basicAuthHeader(getSecretKey()),
+      },
+      body: JSON.stringify({
+        totalAmount: { value: params.amount, currency: params.currency },
+        requestReferenceNumber: params.requestReferenceNumber,
+        redirectUrl: params.redirectUrl,
+        metadata: params.metadata,
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    throw new Error(`Maya Create Customer Payment failed (${res.status}): ${errText}`);
+  }
+
+  return res.json();
+}

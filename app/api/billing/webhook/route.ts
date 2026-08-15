@@ -97,6 +97,12 @@ export async function POST(req: Request) {
         maya_payment_id: paymentId,
         current_period_start: now.toISOString(),
         current_period_end: periodEnd.toISOString(),
+        // Once real Vault auto-renewal is wired up, this is when the
+        // renewal cron (app/api/cron/renew-subscriptions) should next try
+        // charging the card on file. Reset on every successful payment,
+        // whether it's the first charge or a renewal.
+        next_billing_attempt_at: periodEnd.toISOString(),
+        failed_renewal_attempts: 0,
         updated_at: now.toISOString(),
       },
       { onConflict: "user_id" }
@@ -104,17 +110,30 @@ export async function POST(req: Request) {
 
     await supabase.from("profiles").update({ plan: session.plan }).eq("id", session.user_id);
   } else if (paymentStatus === "PAYMENT_FAILED") {
+    const { data: existingSub } = await supabase
+      .from("subscriptions")
+      .select("failed_renewal_attempts")
+      .eq("user_id", session.user_id)
+      .maybeSingle();
+    const attempts = (existingSub?.failed_renewal_attempts ?? 0) + 1;
+    const retryAt = new Date();
+    retryAt.setDate(retryAt.getDate() + 2);
+
     await supabase
       .from("subscriptions")
-      .update({ status: "past_due", updated_at: new Date().toISOString() })
+      .update({
+        status: "past_due",
+        failed_renewal_attempts: attempts,
+        next_billing_attempt_at: retryAt.toISOString(),
+        updated_at: new Date().toISOString(),
+      })
       .eq("user_id", session.user_id);
     // Plan is intentionally left as-is here rather than downgraded
-    // immediately — a grace period (recommended 3-5 days in the
-    // implementation plan, not yet confirmed by the business owner) before
-    // dropping to free is friendlier than yanking access on the first
-    // failed charge. Actually enforcing that grace period needs a
-    // scheduled job (e.g. a Vercel Cron route checking for past_due
-    // subscriptions older than N days), not implemented yet.
+    // immediately — a short grace period (retrying every 2 days, up to 3
+    // attempts) is friendlier than yanking access on the first failed
+    // charge. app/api/cron/renew-subscriptions/route.ts is what actually
+    // downgrades profiles.plan to free once attempts are exhausted (or
+    // the subscription has no card on file to retry at all).
   } else if (paymentStatus === "PAYMENT_CANCELLED") {
     await supabase
       .from("subscriptions")

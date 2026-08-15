@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createCustomerPayment } from "@/lib/maya";
 import { getServiceRoleClient } from "@/lib/supabase/server";
 import { getPlan, type Currency, type PlanSlug } from "@/lib/pricing";
+import { createNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -159,6 +160,15 @@ export async function GET(req: Request) {
       .from("subscriptions")
       .update({ status: "expired", updated_at: now.toISOString() })
       .eq("id", sub.id);
+
+    await createNotification({
+      userId: sub.user_id,
+      type: "plan_downgraded",
+      title: "You're back on the Free plan",
+      body: "Your paid period ended and nothing renewed it, so your account is now on Free. Upgrade any time from Settings.",
+      link: "/settings?tab=billing",
+      relatedId: sub.id,
+    });
     results.downgraded++;
   }
 

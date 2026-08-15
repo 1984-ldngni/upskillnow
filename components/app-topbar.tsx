@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Settings, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { NotificationBell } from "@/components/notification-bell";
 
 // Sits above the main content next to DashboardSidebar on every signed-in
 // page. Houses the account menu (profile settings + sign out) so those
@@ -30,7 +31,8 @@ export function AppTopbar() {
   const initial = displayName.trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <div className="flex items-center justify-end border-b-2 border-black px-6 py-3">
+    <div className="flex items-center justify-end gap-3 border-b-2 border-black px-6 py-3">
+      <NotificationBell />
       <div className="relative" ref={menuRef}>
         <button
           onClick={() => setOpen((v) => !v)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -41,10 +41,19 @@ const THEME_OPTIONS: { value: Theme; label: string; icon: typeof Sun; color: str
   { value: "system", label: "System", icon: Monitor, color: "text-sky-500" },
 ];
 
+const VALID_TABS = new Set(["profile", "notifications", "theme", "billing"]);
+
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loading, userId, profile, isAdmin, signOut, refreshProfile } = useAuth();
   const { theme, setTheme } = useTheme();
+
+  // Lets links from elsewhere in the app (e.g. notifications) open Settings
+  // directly on a specific tab, like /settings?tab=billing, instead of
+  // always landing on Profile and making the user click over themselves.
+  const requestedTab = searchParams.get("tab");
+  const initialTab = requestedTab && VALID_TABS.has(requestedTab) ? requestedTab : "profile";
 
   const [fullName, setFullName] = useState("");
   const [saving, setSaving] = useState(false);
@@ -209,7 +218,7 @@ export default function SettingsPage() {
       <h1 className="font-heading text-3xl font-black">Profile settings</h1>
       <p className="mt-2 text-muted-foreground">Manage your account details.</p>
 
-      <Tabs defaultValue="profile" className="mt-6">
+      <Tabs defaultValue={initialTab} className="mt-6">
         <TabsList>
           <TabsTrigger value="profile">
             <User className="h-4 w-4 text-primary" />

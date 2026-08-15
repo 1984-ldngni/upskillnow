@@ -2,6 +2,49 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — In-app notifications, Phase 1
+- New `notifications` table (migration `add_notifications`): `type`,
+  `title`, `body`, `link`, `related_id` (ties a notification back to the
+  course/path/payment it's about, for idempotency), `read_at`. RLS lets a
+  user read and mark-read only their own rows — no insert policy for
+  regular users, so notifications can only ever be created server-side
+  (service role), never spoofed by a client.
+- New `lib/notifications.ts` — `createNotification()`, the only way any
+  notification gets written. Skips the insert entirely if the user has
+  `notify_in_app` off, and is idempotent per (user, type, related_id) so
+  retries/repeat triggers never create duplicates.
+- Wired into the trigger points that already existed in the code:
+  - `app/api/billing/webhook/route.ts` — `payment_success` on a
+    successful charge, `payment_failed` on a failed one.
+  - `app/api/cron/renew-subscriptions/route.ts` — `plan_downgraded` when
+    the downgrade sweep reverts someone to Free.
+  - New `app/api/notifications/progress-check/route.ts` — re-derives
+    quiz-passed / course-certificate-earned / Learning-Path-certificate-
+    earned server-side from `lesson_completions` and `quiz_attempts`
+    (never trusts a client-supplied "I passed" flag) and notifies
+    accordingly. Called from both `app/quiz/[id]/page.tsx` (right after a
+    passing submission) and `app/courses/[slug]/page.tsx` (right after
+    marking a lesson complete) — a certificate can be "newly earned" from
+    either action depending on which someone does last, so both call it.
+- New `components/notification-bell.tsx` — bell icon + unread badge in
+  `AppTopbar`, dropdown of the 20 most recent notifications, polls every
+  60s (no websocket/Realtime infrastructure yet — plenty for this
+  volume). Reading and marking-read go straight to Supabase from the
+  browser under RLS; no API route needed for that half.
+- Fixed a related gap while wiring this up: `app/settings/page.tsx`'s
+  tabs ignored the URL entirely (`Tabs defaultValue="profile"` was
+  hardcoded), so a notification linking to `/settings?tab=billing` would
+  have silently landed on the Profile tab. Settings now reads `?tab=` and
+  opens on the requested tab if it's valid, falling back to Profile
+  otherwise.
+- Verified: full `npx tsc --noEmit` pass. Full `next build` timed out in
+  the sandbox before finishing (unrelated to this change — the build
+  compiles 32 course pages) so it wasn't confirmed end-to-end there, but
+  the exact `useSearchParams` pattern added to Settings is already used
+  successfully in three other pages in this codebase
+  (`/billing/success`, `/billing/cancel`, `/auth`), all live in
+  production.
+
 ## 2026-08-15 — Search boxes on admin Console
 - Console → All courses and All users both had lists expected to grow long
   over time with no way to narrow them down. Added a search `Input` to

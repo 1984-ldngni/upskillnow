@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isMayaWebhookIp, mapPaymentMethod, type MayaPayment } from "@/lib/maya";
 import { getServiceRoleClient } from "@/lib/supabase/server";
+import { createNotification } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -109,6 +110,15 @@ export async function POST(req: Request) {
     );
 
     await supabase.from("profiles").update({ plan: session.plan }).eq("id", session.user_id);
+
+    await createNotification({
+      userId: session.user_id,
+      type: "payment_success",
+      title: "Payment received",
+      body: `You're on the ${session.plan === "team" ? "Team" : "Pro"} plan now — full access is unlocked.`,
+      link: "/settings?tab=billing",
+      relatedId: paymentId,
+    });
   } else if (paymentStatus === "PAYMENT_FAILED") {
     const { data: existingSub } = await supabase
       .from("subscriptions")
@@ -134,6 +144,15 @@ export async function POST(req: Request) {
     // charge. app/api/cron/renew-subscriptions/route.ts is what actually
     // downgrades profiles.plan to free once attempts are exhausted (or
     // the subscription has no card on file to retry at all).
+
+    await createNotification({
+      userId: session.user_id,
+      type: "payment_failed",
+      title: "Payment didn't go through",
+      body: "We'll try again in a couple days. Update your payment method in Settings if it keeps failing.",
+      link: "/settings?tab=billing",
+      relatedId: paymentId,
+    });
   } else if (paymentStatus === "PAYMENT_CANCELLED") {
     await supabase
       .from("subscriptions")

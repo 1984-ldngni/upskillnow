@@ -20,6 +20,7 @@ import {
   type QuizQuestion,
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { PlayCircle, Lock, CheckCircle2, Award } from "lucide-react";
 
 export default function CourseLessonPage() {
@@ -72,6 +73,31 @@ export default function CourseLessonPage() {
       return next;
     });
     await setLessonComplete(lessonId, !currentlyComplete);
+
+    // Covers the case where the quiz was already passed before this lesson
+    // — the quiz page fires this same check on submit, but if someone
+    // finishes their last free lesson *after* already passing the quiz,
+    // this is the only remaining moment the certificate actually completes.
+    if (!currentlyComplete && course) {
+      try {
+        const supabase = getSupabaseClient();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          fetch("/api/notifications/progress-check", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ courseSlug: course.slug }),
+          }).catch(() => {});
+        }
+      } catch {
+        // Non-critical.
+      }
+    }
   }
 
   if (authLoading || !userId || dataLoading) {

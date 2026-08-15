@@ -15,6 +15,7 @@ import {
   type QuizQuestion,
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import { Award } from "lucide-react";
 
 const PASSING_RATIO = 0.6;
@@ -55,6 +56,31 @@ export default function QuizPage() {
     if (course) {
       await saveQuizAttempt(course.id, score, questions.length);
       setSaved(true);
+
+      if (passed) {
+        // Fire-and-forget: checks whether this passing attempt newly earns
+        // a quiz-passed / certificate / path-certificate notification.
+        // Doesn't block the UI on it — worst case, no notification appears.
+        try {
+          const supabase = getSupabaseClient();
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session?.access_token) {
+            fetch("/api/notifications/progress-check", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json",
+                authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ courseSlug: course.slug }),
+            }).catch(() => {});
+          }
+        } catch {
+          // Non-critical — notifications are a nice-to-have, never block
+          // the actual quiz result from showing.
+        }
+      }
     }
   }
 

@@ -2,6 +2,15 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-15 — Search boxes on admin Console
+- Console → All courses and All users both had lists expected to grow long
+  over time with no way to narrow them down. Added a search `Input` to
+  each card header: courses filter by title, users filter by name or
+  email, both case-insensitive substring match, live as you type.
+- Empty state distinguishes "no data at all" from "no results for this
+  search" (`No courses match "x"` vs `No courses yet.`).
+- Verified: full `npx tsc --noEmit` pass.
+
 ## 2026-08-15 — Course content quality review (data only, no code changes)
 - Full review of all 33 courses across four dimensions: quiz accuracy,
   lesson title specificity/progression, level (Beginner/Intermediate/

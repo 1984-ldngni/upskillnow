@@ -8,6 +8,7 @@ import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useImpersonation } from "@/lib/impersonation-context";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -44,6 +45,8 @@ export default function AdminPage() {
   const [courses, setCourses] = useState<CourseManagement[]>([]);
   const [errorLogs, setErrorLogs] = useState<LoggedError[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [courseSearch, setCourseSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
 
   useEffect(() => {
     if (authLoading) return;
@@ -72,6 +75,15 @@ export default function AdminPage() {
       </div>
     );
   }
+
+  const filteredCourses = courses.filter((c) =>
+    c.title.toLowerCase().includes(courseSearch.trim().toLowerCase())
+  );
+  const filteredUsers = users.filter((u) => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return true;
+    return (u.fullName ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q);
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -139,9 +151,15 @@ export default function AdminPage() {
                   Every course in the catalog. There's no draft/published flag yet, so this list
                   is identical to what learners see — this is just the management view of it.
                 </CardDescription>
+                <Input
+                  value={courseSearch}
+                  onChange={(e) => setCourseSearch(e.target.value)}
+                  placeholder="Search courses…"
+                  className="mt-2"
+                />
               </CardHeader>
               <CardContent className="space-y-2">
-                {courses.map((c) => (
+                {filteredCourses.map((c) => (
                   <div
                     key={c.slug}
                     className="flex items-center justify-between rounded-md border-2 border-black px-3 py-2 text-sm"
@@ -155,6 +173,9 @@ export default function AdminPage() {
                     <Badge variant={difficultyVariant(c.level)}>{c.level}</Badge>
                   </div>
                 ))}
+                {filteredCourses.length === 0 && courses.length > 0 && (
+                  <p className="text-sm text-muted-foreground">No courses match "{courseSearch}".</p>
+                )}
                 {courses.length === 0 && (
                   <p className="text-sm text-muted-foreground">No courses yet.</p>
                 )}
@@ -169,9 +190,15 @@ export default function AdminPage() {
                   troubleshooting context — it does not yet start a real session as that user;
                   that requires a Supabase Edge Function, which is a separate, bigger build.
                 </CardDescription>
+                <Input
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search users by name or email…"
+                  className="mt-2"
+                />
               </CardHeader>
               <CardContent className="space-y-2">
-                {users.map((u) => (
+                {filteredUsers.map((u) => (
                   <div
                     key={u.id}
                     className="flex items-center justify-between rounded-md border-2 border-black px-3 py-2 text-sm"
@@ -194,6 +221,9 @@ export default function AdminPage() {
                     </Button>
                   </div>
                 ))}
+                {filteredUsers.length === 0 && users.length > 0 && (
+                  <p className="text-sm text-muted-foreground">No users match "{userSearch}".</p>
+                )}
                 {users.length === 0 && (
                   <p className="text-sm text-muted-foreground">No users yet.</p>
                 )}

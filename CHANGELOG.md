@@ -2,6 +2,14 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Favicon
+- Added `app/icon.svg` — the browser tab was showing Chrome's default
+  globe icon because no favicon existed at all. New icon reuses the
+  existing brand mark from `components/logo.tsx` (black-bordered indigo
+  square, bold white up-arrow) so the tab icon matches the in-app logo.
+  Picked up automatically by Next.js's file-based icon convention, no
+  metadata/layout changes needed.
+
 ## 2026-08-15 — In-app notifications, Phase 1
 - New `notifications` table (migration `add_notifications`): `type`,
   `title`, `body`, `link`, `related_id` (ties a notification back to the

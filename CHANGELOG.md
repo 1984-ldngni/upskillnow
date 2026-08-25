@@ -2,6 +2,21 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Infographic font sizes fixed directly in Canva (no regeneration)
+- Lessons 2, 3, 4, and 6's infographics still had small (~17-21px) body,
+  caption, and quote-attribution text after the earlier "larger text"
+  regeneration pass — that prompt only reliably enlarged headlines, not
+  full-sentence text. Lesson 6 had never been regenerated at all (blocked
+  by Canva's AI generation quota).
+- Used Canva's `read-design`/`edit-design` tools to bump `font_size`
+  directly on the small text elements in each existing design (no AI
+  generation quota consumed), verified each change against a before/after
+  thumbnail for overlap before committing, then re-exported and re-ran the
+  admin import pipeline (`app/admin/import-lesson-images/page.tsx` →
+  `app/api/admin/import-lesson-image/route.ts`) to pull the fixed PNGs
+  into Storage. Lessons 1 and 5 already had large, readable text and were
+  left untouched.
+
 ## 2026-08-25 — Focus mode now survives Next/Previous
 - Focus mode was plain component state, so clicking Next/Previous — a
   real navigation to a new lesson page that remounts the component —

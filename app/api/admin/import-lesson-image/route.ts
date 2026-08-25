@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServiceRoleClient } from "@/lib/supabase/server";
+import { getServiceRoleClient, getUserFromAccessToken } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -11,19 +11,29 @@ export const runtime = "nodejs";
 // lesson's `image_url` column at the resulting public URL.
 //
 // Exists because Canva's export URLs are short-lived signed S3 links (a few
-// hours), not something safe to store directly in the database. Reuses
-// CRON_SECRET as a lightweight shared secret rather than inventing a new
-// admin auth mechanism for what's a rarely-used bulk-import tool — not a
-// user-facing route.
-function isAuthorized(req: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return false;
+// hours), not something safe to store directly in the database.
+//
+// Auth: accepts either (a) a signed-in admin's own bearer token — the
+// intended path, so this can be triggered from the admin's own logged-in
+// browser session without needing to hand out any shared secret — or (b)
+// CRON_SECRET, kept as a fallback for possible future server-to-server use.
+async function isAuthorized(req: Request): Promise<boolean> {
   const authHeader = req.headers.get("authorization");
-  return authHeader === `Bearer ${secret}`;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  if (!token) return false;
+
+  const secret = process.env.CRON_SECRET;
+  if (secret && token === secret) return true;
+
+  const user = await getUserFromAccessToken(token);
+  if (!user) return false;
+  const supabase = getServiceRoleClient();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  return profile?.role === "admin";
 }
 
 export async function POST(req: Request) {
-  if (!isAuthorized(req)) {
+  if (!(await isAuthorized(req))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

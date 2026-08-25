@@ -10,7 +10,7 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const GREETING: ChatMessage = {
   role: "assistant",
-  content: "Hi! Ask me anything about our tools, courses, learning paths, or pricing.",
+  content: "Hi! Ask me anything about our tools, Skill Paths, Career Paths, or pricing.",
 };
 
 export function ChatWidget() {

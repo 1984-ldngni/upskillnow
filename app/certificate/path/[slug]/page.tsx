@@ -62,8 +62,8 @@ export default function PathCertificatePage() {
           <Route className="mx-auto h-10 w-10 text-muted-foreground" />
           <h1 className="mt-4 font-heading text-2xl font-black">Not earned yet</h1>
           <p className="mt-2 text-muted-foreground">
-            Finish every course in {path.title} to unlock this path certificate. You still have{" "}
-            {remaining.length} course{remaining.length === 1 ? "" : "s"} to go:
+            Finish every Skill Path in {path.title} to unlock this career path certificate. You still have{" "}
+            {remaining.length} Skill Path{remaining.length === 1 ? "" : "s"} to go:
           </p>
           <ul className="mx-auto mt-4 max-w-sm space-y-1 text-left text-sm text-muted-foreground">
             {remaining.map((c) => (
@@ -99,7 +99,7 @@ export default function PathCertificatePage() {
             <Logo size="lg" />
           </div>
           <p className="mt-8 text-sm font-bold uppercase tracking-widest text-muted-foreground">
-            Learning Path Certificate
+            Career Path Certificate
           </p>
           <p className="mt-6 text-sm text-muted-foreground">This certifies that</p>
           <h1 className="mt-2 font-heading text-3xl font-black">
@@ -108,7 +108,7 @@ export default function PathCertificatePage() {
           <p className="mt-6 text-sm text-muted-foreground">has successfully completed the</p>
           <h2 className="mt-2 font-heading text-2xl font-black text-primary">{path.title}</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            {path.courses.length} course{path.courses.length === 1 ? "" : "s"}: {path.courses.map((c) => c.title).join(", ")}
+            {path.courses.length} Skill Path{path.courses.length === 1 ? "" : "s"}: {path.courses.map((c) => c.title).join(", ")}
           </p>
           <p className="mt-8 text-xs text-muted-foreground">Awarded {dateEarned}</p>
         </div>

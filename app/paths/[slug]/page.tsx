@@ -76,7 +76,7 @@ export default function LearningPathPage() {
         <h1 className="mt-3 font-heading text-3xl font-black">{path.title}</h1>
         <p className="mt-2 text-muted-foreground">{path.description}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {userId ? `${completedCount} / ${path.courses.length} courses complete` : `${path.courses.length} courses in this path`}
+          {userId ? `${completedCount} / ${path.courses.length} Skill Paths complete` : `${path.courses.length} Skill Paths in this career path`}
         </p>
 
         {userId && path.courses.length > 0 && (
@@ -121,19 +121,19 @@ export default function LearningPathPage() {
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link href="/paths">
-            <Button variant="outline">Back to all paths</Button>
+            <Button variant="outline">Back to all Career Paths</Button>
           </Link>
           {userId && (
             pathCompleted ? (
               <Link href={`/certificate/path/${path.slug}`}>
                 <Button>
                   <Award className="mr-2 h-4 w-4" />
-                  View your path certificate
+                  View your career path certificate
                 </Button>
               </Link>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Complete every course in this path to earn a path certificate.
+                Complete every Skill Path in this career path to earn a certificate.
               </p>
             )
           )}

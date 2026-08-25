@@ -75,11 +75,11 @@ export default function CoursesPage() {
     <AppShell>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="font-heading text-3xl font-black">Courses</h1>
+            <h1 className="font-heading text-3xl font-black">Skill Paths</h1>
             <p className="mt-2 text-muted-foreground">Modular, step-by-step tracks by skill level.</p>
           </div>
           <Link href="/paths">
-            <Button variant="outline" size="sm">Browse Learning Paths</Button>
+            <Button variant="outline" size="sm">Browse Career Paths</Button>
           </Link>
         </div>
 
@@ -88,7 +88,7 @@ export default function CoursesPage() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search courses by tool, topic, or keyword…"
+            placeholder="Search Skill Paths by tool, topic, or keyword…"
             className="pl-9 pr-9"
           />
           {query && (
@@ -138,7 +138,7 @@ export default function CoursesPage() {
           )}
         </div>
 
-        {loading && <p className="mt-8 text-muted-foreground">Loading courses…</p>}
+        {loading && <p className="mt-8 text-muted-foreground">Loading Skill Paths…</p>}
 
         {!loading && (
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -154,7 +154,7 @@ export default function CoursesPage() {
                 </CardHeader>
                 <CardContent>
                   <Link href={`/courses/${c.slug}`}>
-                    <Button size="sm" className="mt-3">View course</Button>
+                    <Button size="sm" className="mt-3">View Skill Path</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -162,8 +162,8 @@ export default function CoursesPage() {
             {visibleCourses.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 {query
-                  ? `No courses match "${query}". Try a different keyword or clear your filters.`
-                  : "No courses match these filters yet."}
+                  ? `No Skill Paths match "${query}". Try a different keyword or clear your filters.`
+                  : "No Skill Paths match these filters yet."}
               </p>
             )}
           </div>

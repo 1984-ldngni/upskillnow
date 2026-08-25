@@ -198,7 +198,7 @@ export default function FindYourPathPage() {
         </div>
         <p className="mt-2 text-muted-foreground">
           Seven quick questions — select all that apply, and we'll match you to your best-fit
-          Learning Paths out of {paths.length || 11}.
+          Career Paths out of {paths.length || 11}.
         </p>
 
         {!submitted && (
@@ -266,7 +266,7 @@ export default function FindYourPathPage() {
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-3">
                       <Link href={`/paths/${path.slug}`}>
-                        <Button>View this path</Button>
+                        <Button>View this career path</Button>
                       </Link>
                     </CardContent>
                   </Card>

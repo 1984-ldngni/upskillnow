@@ -39,9 +39,10 @@ export default function PathsPage() {
     <AppShell>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="font-heading text-3xl font-black">Learning Paths</h1>
+            <h1 className="font-heading text-3xl font-black">Career Paths</h1>
             <p className="mt-2 text-muted-foreground">
-              Themed tracks that bundle several courses toward one career specialization.
+              Themed tracks that bundle several Skill Paths toward one career specialization. We're
+              still building out deeper career-track content — more on the way.
             </p>
           </div>
           <Link href="/find-your-path">
@@ -68,7 +69,7 @@ export default function PathsPage() {
           })}
         </div>
 
-        {loading && <p className="mt-8 text-muted-foreground">Loading paths…</p>}
+        {loading && <p className="mt-8 text-muted-foreground">Loading career paths…</p>}
 
         {!loading && (
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -94,14 +95,14 @@ export default function PathsPage() {
                   </ul>
                   <Link href={`/paths/${p.slug}`}>
                     <Button size="sm" className="w-full">
-                      View path ({p.courses.length} courses)
+                      View path ({p.courses.length} Skill Paths)
                     </Button>
                   </Link>
                 </CardContent>
               </Card>
             ))}
             {visiblePaths.length === 0 && (
-              <p className="text-sm text-muted-foreground">No paths at this level yet.</p>
+              <p className="text-sm text-muted-foreground">No career paths at this level yet.</p>
             )}
           </div>
         )}

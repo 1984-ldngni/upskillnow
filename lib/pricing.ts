@@ -13,8 +13,8 @@ export type Plan = { slug: PlanSlug; name: string; price: string; amount: number
 
 export const PLANS: Record<Currency, Plan[]> = {
   USD: [
-    { slug: "free", name: "Free", price: "$0", amount: 0, blurb: "Explore the tool directory and one starter course." },
-    { slug: "pro", name: "Pro", price: "$9/mo", amount: 9, blurb: "Full course library, quizzes, and AI Tutor access." },
+    { slug: "free", name: "Free", price: "$0", amount: 0, blurb: "Explore the tool directory and one starter Skill Path." },
+    { slug: "pro", name: "Pro", price: "$9/mo", amount: 9, blurb: "Full Skill Path library, quizzes, and AI Tutor access." },
     {
       slug: "team",
       name: "Team",
@@ -24,8 +24,8 @@ export const PLANS: Record<Currency, Plan[]> = {
     },
   ],
   PHP: [
-    { slug: "free", name: "Free", price: "₱0", amount: 0, blurb: "Explore the tool directory and one starter course." },
-    { slug: "pro", name: "Pro", price: "₱495/mo", amount: 495, blurb: "Full course library, quizzes, and AI Tutor access." },
+    { slug: "free", name: "Free", price: "₱0", amount: 0, blurb: "Explore the tool directory and one starter Skill Path." },
+    { slug: "pro", name: "Pro", price: "₱495/mo", amount: 495, blurb: "Full Skill Path library, quizzes, and AI Tutor access." },
     {
       slug: "team",
       name: "Team",

@@ -60,7 +60,7 @@ export default async function LandingPage() {
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             UpSkillNow curates and teaches the AI and automation tools professionals use across
             real estate, e-commerce, finance, marketing, and executive support — with hands-on
-            courses, quizzes, and an AI tutor.
+            Skill Paths, quizzes, and an AI tutor.
           </p>
           <div className="mt-8 flex items-center justify-center gap-3">
             <Link href="/auth"><Button size="lg">Start learning free</Button></Link>

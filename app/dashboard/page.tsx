@@ -79,7 +79,7 @@ export default function DashboardPage() {
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardDescription>Courses available</CardDescription>
+              <CardDescription>Skill Paths available</CardDescription>
               <CardTitle className="text-3xl">{courses.length}</CardTitle>
             </CardHeader>
           </Card>
@@ -110,13 +110,13 @@ export default function DashboardPage() {
                   <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
                     <BookOpen className="h-8 w-8 text-muted-foreground" />
                     <div>
-                      <p className="font-bold">You haven't started a course yet.</p>
+                      <p className="font-bold">You haven't started a Skill Path yet.</p>
                       <p className="text-sm text-muted-foreground">
                         Once you mark a lesson complete, it'll show up here so you can pick up where you left off.
                       </p>
                     </div>
                     <Link href="/courses">
-                      <Button size="sm">Browse courses</Button>
+                      <Button size="sm">Browse Skill Paths</Button>
                     </Link>
                   </CardContent>
                 </Card>
@@ -172,7 +172,7 @@ export default function DashboardPage() {
         <div className="mt-8">
           <div className="flex items-center justify-between">
             <h2 className="font-heading text-lg font-semibold">Recommended for you</h2>
-            <Link href="/paths" className="text-sm font-medium text-primary">Browse paths</Link>
+            <Link href="/paths" className="text-sm font-medium text-primary">Browse Career Paths</Link>
           </div>
           <div className="mt-4">
             {recommendation?.status === "in-progress" && recommendation.path && (
@@ -180,10 +180,10 @@ export default function DashboardPage() {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Route className="h-4 w-4 text-emerald-500" />
-                    <CardTitle className="text-base">Continue your {recommendation.path.title} path</CardTitle>
+                    <CardTitle className="text-base">Continue your {recommendation.path.title} career path</CardTitle>
                   </div>
                   <CardDescription>
-                    {recommendation.completedCount} / {recommendation.totalCount} courses complete
+                    {recommendation.completedCount} / {recommendation.totalCount} Skill Paths complete
                     {recommendation.nextCourse && ` — next up: ${recommendation.nextCourse.title}`}
                   </CardDescription>
                 </CardHeader>
@@ -208,13 +208,13 @@ export default function DashboardPage() {
                     <CardTitle className="text-base">You've completed every specialization</CardTitle>
                   </div>
                   <CardDescription>
-                    Nicely done — every Learning Path is finished. Explore the tool directory or full
-                    course library for what's next.
+                    Nicely done — every Career Path is finished. Explore the tool directory or full
+                    Skill Path library for what's next.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex gap-2">
                   <Link href="/courses">
-                    <Button size="sm" variant="outline">Browse all courses</Button>
+                    <Button size="sm" variant="outline">Browse all Skill Paths</Button>
                   </Link>
                 </CardContent>
               </Card>
@@ -233,8 +233,8 @@ export default function DashboardPage() {
                   </div>
                   <CardDescription>
                     {recommendation.hasAnyCourseProgress
-                      ? "You've been taking individual courses — a Learning Path bundles a few into a themed specialization with its own certificate."
-                      : "Take our 2-minute quiz and we'll recommend a Learning Path to start with."}
+                      ? "You've been taking individual Skill Paths — a Career Path bundles a few into a themed specialization with its own certificate."
+                      : "Take our 2-minute quiz and we'll recommend a Career Path to start with."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex gap-2">
@@ -242,7 +242,7 @@ export default function DashboardPage() {
                     <Button size="sm">Take the quiz</Button>
                   </Link>
                   <Link href="/paths">
-                    <Button size="sm" variant="outline">Browse paths</Button>
+                    <Button size="sm" variant="outline">Browse Career Paths</Button>
                   </Link>
                 </CardContent>
               </Card>

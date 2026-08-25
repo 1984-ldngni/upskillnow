@@ -13,8 +13,8 @@ import { usePreviewMode } from "@/lib/preview-mode-context";
 const learnerLinks = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, color: "text-primary" },
   { href: "/tools", label: "Tool Directory", icon: Wrench, color: "text-orange-500" },
-  { href: "/courses", label: "Courses", icon: BookOpen, color: "text-accent" },
-  { href: "/paths", label: "Paths", icon: Route, color: "text-emerald-500" },
+  { href: "/courses", label: "Skill Paths", icon: BookOpen, color: "text-accent" },
+  { href: "/paths", label: "Career Paths", icon: Route, color: "text-emerald-500" },
 ];
 
 const adminOnlyLink = {

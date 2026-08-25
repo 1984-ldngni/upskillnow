@@ -22,9 +22,9 @@ type ChatMessage = { role: "user" | "assistant"; content: string };
 // live Anthropic call) is a paid feature per the pricing copy, so anything
 // that falls through to it needs a signed-in Pro/Team user first.
 const SIGN_IN_PROMPT =
-  "That's a great question for our full AI Tutor, which comes with Pro and Team plans — sign in (or create a free account) and upgrade to unlock it. In the meantime, I can answer questions about our tools, courses, learning paths, and pricing right here.";
+  "That's a great question for our full AI Tutor, which comes with Pro and Team plans — sign in (or create a free account) and upgrade to unlock it. In the meantime, I can answer questions about our tools, Skill Paths, Career Paths, and pricing right here.";
 const UPGRADE_PROMPT =
-  "That's exactly what our full AI Tutor is for — it's included with Pro and Team plans. Upgrade any time from Settings → Billing to unlock it. I can still help with questions about our tools, courses, learning paths, and pricing on the Free plan.";
+  "That's exactly what our full AI Tutor is for — it's included with Pro and Team plans. Upgrade any time from Settings → Billing to unlock it. I can still help with questions about our tools, Skill Paths, Career Paths, and pricing on the Free plan.";
 
 // Pulls a compact snapshot of the live catalog so the assistant's answers stay
 // accurate as tools/courses/paths are added, without needing to hardcode or
@@ -48,14 +48,14 @@ async function buildCatalogSummary(): Promise<string> {
     .map((p: any) => `- ${p.title} [${p.level}] — ${p.description}`)
     .join("\n");
 
-  return `TOOL DIRECTORY (${tools?.length ?? 0} tools):\n${toolLines}\n\nCOURSES (${courses?.length ?? 0}):\n${courseLines}\n\nLEARNING PATHS (${paths?.length ?? 0}):\n${pathLines}`;
+  return `TOOL DIRECTORY (${tools?.length ?? 0} tools):\n${toolLines}\n\nSKILL PATHS (${courses?.length ?? 0}):\n${courseLines}\n\nCAREER PATHS (${paths?.length ?? 0}):\n${pathLines}`;
 }
 
-const SYSTEM_PROMPT_BASE = `You are the "Ask us" support assistant on UpSkillNow, a site that teaches professionals at any career stage how to use AI and automation tools through short courses and Learning Paths.
+const SYSTEM_PROMPT_BASE = `You are the "Ask us" support assistant on UpSkillNow, a site that teaches professionals at any career stage how to use AI and automation tools through Skill Paths (single-tool, step-by-step courses) and Career Paths (multi-Skill-Path tracks toward a specialization — still being built out, more coming in a future phase).
 
-Pricing (also shown on the site's pricing section): Free plan ($0/₱0, one starter course), Pro ($9/mo or ₱495/mo, full course library + quizzes), Team ($24/mo or ₱1,495/mo, for 2-4 seats with the 4th seat free). USD is shown for international visitors, PHP for the Philippines.
+Pricing (also shown on the site's pricing section): Free plan ($0/₱0, one starter Skill Path), Pro ($9/mo or ₱495/mo, full Skill Path library + quizzes), Team ($24/mo or ₱1,495/mo, for 2-4 seats with the 4th seat free). USD is shown for international visitors, PHP for the Philippines.
 
-Answer questions about the tool directory, courses, learning paths, pricing, and how the site works, using the catalog data below. If someone asks something unrelated to UpSkillNow or that you don't have information for, say so honestly rather than guessing. Keep answers concise and friendly. Do not invent tools, courses, or prices that aren't listed below.
+Answer questions about the tool directory, Skill Paths, Career Paths, pricing, and how the site works, using the catalog data below. If someone asks something unrelated to UpSkillNow or that you don't have information for, say so honestly rather than guessing. Keep answers concise and friendly. Do not invent tools, Skill Paths, or prices that aren't listed below.
 
 `;
 
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
     if (!apiKey) {
       return NextResponse.json({
         reply:
-          "The chat assistant isn't fully set up yet — an admin needs to add an ANTHROPIC_API_KEY in Vercel's environment variables. In the meantime, feel free to browse the Tool Directory or Courses!",
+          "The chat assistant isn't fully set up yet — an admin needs to add an ANTHROPIC_API_KEY in Vercel's environment variables. In the meantime, feel free to browse the Tool Directory or Skill Paths!",
       });
     }
 

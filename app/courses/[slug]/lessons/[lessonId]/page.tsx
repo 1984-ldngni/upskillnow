@@ -238,7 +238,7 @@ export default function LessonDetailPage() {
 
           <div className={`flex flex-col rounded-md border-2 border-black bg-card p-6 shadow-brutal ${lesson.imageUrl ? "md:h-[85vh] md:min-h-[760px]" : ""}`}>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
-              <div className="flex shrink-0 flex-wrap items-end justify-between gap-2">
+              <div className="flex shrink-0 flex-wrap items-end justify-between gap-2 pr-3">
                 <TabsList>
                   <TabsTrigger value="text">
                     <FileText className="h-4 w-4 text-primary" />
@@ -270,7 +270,7 @@ export default function LessonDetailPage() {
                 )}
               </div>
 
-              <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pt-6">
+              <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pr-3 pt-6">
                 <TabsContent value="text">
                   {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
                     <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} activeWordIndex={ttsPlaying ? ttsActiveIndex : undefined} />

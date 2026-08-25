@@ -21,7 +21,7 @@ import { useAuth } from "@/lib/auth-context";
 import { usePreviewMode } from "@/lib/preview-mode-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { LessonBlocks, type LessonBlock } from "@/components/lesson-blocks";
-import { ArrowLeft, ArrowRight, FileText, Headphones, Video, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, FileText, Headphones, Video, Lock, Maximize2, Minimize2 } from "lucide-react";
 
 // Renders lesson.bodyText, which uses a light convention rather than full
 // markdown: paragraphs separated by a blank line, and lines starting with
@@ -62,6 +62,7 @@ export default function LessonDetailPage() {
   const [complete, setComplete] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -135,14 +136,29 @@ export default function LessonDetailPage() {
   const nextLesson = index >= 0 && index < siblingLessons.length - 1 ? siblingLessons[index + 1] : null;
 
   return (
-    <AppShell maxWidth="max-w-5xl">
-      <Link
-        href={`/courses/${course.slug}`}
-        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" />
-        Back to {course.title}
-      </Link>
+    <AppShell maxWidth={focusMode ? "max-w-7xl" : "max-w-5xl"} focusMode={focusMode}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <Link
+          href={`/courses/${course.slug}`}
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to {course.title}
+        </Link>
+        <Button size="sm" variant="outline" onClick={() => setFocusMode((v) => !v)}>
+          {focusMode ? (
+            <>
+              <Minimize2 className="mr-1.5 h-3.5 w-3.5" />
+              Exit focus mode
+            </>
+          ) : (
+            <>
+              <Maximize2 className="mr-1.5 h-3.5 w-3.5" />
+              Focus mode
+            </>
+          )}
+        </Button>
+      </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <h1 className="font-heading text-2xl font-black">

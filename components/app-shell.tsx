@@ -16,9 +16,15 @@ import { useAuth } from "@/lib/auth-context";
 export function AppShell({
   children,
   maxWidth = "max-w-6xl",
+  focusMode = false,
 }: {
   children: ReactNode;
   maxWidth?: string;
+  // Hides the sidebar, topbar, and preview banner so a content-heavy page
+  // (e.g. a lesson) can use the full screen. The page itself is responsible
+  // for rendering its own toggle to enter/exit this — AppShell just does
+  // the hiding.
+  focusMode?: boolean;
 }) {
   const { loading, userId } = useAuth();
 
@@ -26,6 +32,14 @@ export function AppShell({
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
+
+  if (userId && focusMode) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <main className={`mx-auto w-full flex-1 px-6 py-6 ${maxWidth}`}>{children}</main>
       </div>
     );
   }

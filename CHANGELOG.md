@@ -2,6 +2,18 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Focus mode on lessons
+- `components/app-shell.tsx`: new optional `focusMode` prop. When on (and
+  signed in), the sidebar, topbar, and preview-mode banner are hidden
+  entirely so the page's own content gets the full screen — the page
+  itself still renders everything else, AppShell just stops wrapping it
+  in the usual chrome.
+- Lesson-detail page gets a "Focus mode" / "Exit focus mode" toggle next
+  to the back link. Also widens the content column from `max-w-5xl` to
+  `max-w-7xl` while focused, since there's no sidebar competing for width
+  anymore. The 85vh-tall matched columns from the earlier layout change
+  scale naturally with the extra vertical room this frees up.
+
 ## 2026-08-25 — Matched-height lesson layout + more infographics regenerated
 - `app/courses/[slug]/lessons/[lessonId]/page.tsx`: the infographic column
   and the Read/Listen/Watch card now share a fixed height (`640px` on

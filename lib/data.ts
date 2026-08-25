@@ -25,6 +25,13 @@ export type Course = {
 
 export type Lesson = { id: string; title: string; duration: string; isPremium: boolean };
 
+export type LessonDetail = Lesson & {
+  courseId: string;
+  bodyText: string | null;
+  audioUrl: string | null;
+  videoUrl: string | null;
+};
+
 export type QuizQuestion = { question: string; options: string[]; answerIndex: number };
 
 export async function getTools(): Promise<Tool[]> {
@@ -152,6 +159,33 @@ export async function getLessonsForCourseSlug(slug: string): Promise<Lesson[]> {
     return [];
   }
   return data.map((l: any) => ({ id: l.id, title: l.title, duration: l.duration, isPremium: l.is_premium ?? false }));
+}
+
+// Single lesson including its actual content (text/audio/video) — used by the
+// lesson-detail page. Kept separate from getLessonsForCourseSlug so the
+// course list view doesn't have to pull full lesson bodies over the wire.
+export async function getLessonById(lessonId: string): Promise<LessonDetail | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("lessons")
+    .select("id, title, duration, is_premium, body_text, audio_url, video_url, course_id")
+    .eq("id", lessonId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (error) logClientError(`getLessonById failed: ${error.message}`, { context: { table: "lessons", lessonId } });
+    return null;
+  }
+  return {
+    id: data.id,
+    title: data.title,
+    duration: data.duration,
+    isPremium: data.is_premium ?? false,
+    bodyText: data.body_text ?? null,
+    audioUrl: data.audio_url ?? null,
+    videoUrl: data.video_url ?? null,
+    courseId: data.course_id,
+  };
 }
 
 // --- Progress tracking: lesson completions, quiz attempts, certificates.

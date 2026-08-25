@@ -2,6 +2,35 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Lesson content, pilot (text)
+- Found that lessons had no actual content — just title/duration metadata
+  with a "mark complete" checkbox and nowhere for the lesson title to link
+  to. Fixed the data model and built the missing page.
+- Migration `add_lesson_content_formats`: added `body_text`, `audio_url`,
+  `video_url` columns to `lessons`, so a lesson can carry a written version,
+  an audio narration, and a video explainer independently.
+- New `app/courses/[slug]/lessons/[lessonId]/page.tsx` — lesson-detail page
+  with Read / Listen / Watch tabs. Falls back to "isn't ready yet" per tab
+  when that format's column is empty, rather than hiding the tab entirely,
+  so the UI is consistent even for courses that don't have all 3 formats
+  yet. Respects the same Pro-gating as the course list (`profile.plan`
+  check) — premium lessons show an upgrade prompt instead of content for
+  Free-plan users. Includes Mark complete + Previous/Next lesson nav.
+- Course list page (`app/courses/[slug]/page.tsx`) — lesson titles now link
+  to the new detail page instead of being plain text.
+- Wrote the pilot course's text content in full: all 6 lessons of "Claude
+  for Virtual Assistants." Audio and video are not yet populated for this
+  course — see below.
+- Audio: blocked. Tried free TTS (gTTS) from the build sandbox; blocked by
+  the sandbox's network allowlist. Real audio narration needs a paid TTS
+  provider (OpenAI TTS, ElevenLabs, etc.) and an API key — parked pending
+  that decision.
+- Video: planned as a slide/motion-graphics explainer (no real screen
+  recording of the underlying AI tools — not something that can be
+  produced at this scale from here). Pipeline not yet built.
+- Remaining ~31 courses still have no lesson content in any format —
+  this pilot proves the format before batch-writing the rest.
+
 ## 2026-08-25 — Favicon
 - Added `app/icon.svg` — the browser tab was showing Chrome's default
   globe icon because no favicon existed at all. New icon reuses the

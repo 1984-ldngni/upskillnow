@@ -164,7 +164,10 @@ export default function CourseLessonPage() {
                     ) : (
                       <PlayCircle className="h-5 w-5 text-primary" />
                     )}
-                    <Link href={`/courses/${course.slug}/lessons/${lesson.id}`} className="hover:underline">
+                    <Link
+                      href={`/courses/${course.slug}/lessons/${lesson.id}`}
+                      className="hover:underline group-hover:text-black group-hover:decoration-black"
+                    >
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-sm group-hover:text-black">Lesson {i + 1}: {lesson.title}</CardTitle>
                         {lesson.isPremium && <Badge variant="purple">Pro</Badge>}

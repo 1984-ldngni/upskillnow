@@ -31,6 +31,10 @@ export type LessonDetail = Lesson & {
   audioUrl: string | null;
   videoUrl: string | null;
   imageUrl: string | null;
+  // Structured, interactive Read-tab content (see components/lesson-blocks.tsx).
+  // Typed as unknown[] here to keep lib/data.ts free of UI-layer types — the
+  // lesson-detail page casts this to LessonBlock[] where it's rendered.
+  contentBlocks: unknown[] | null;
 };
 
 export type QuizQuestion = { question: string; options: string[]; answerIndex: number };
@@ -169,7 +173,7 @@ export async function getLessonById(lessonId: string): Promise<LessonDetail | nu
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, duration, is_premium, body_text, audio_url, video_url, image_url, course_id")
+    .select("id, title, duration, is_premium, body_text, audio_url, video_url, image_url, content_blocks, course_id")
     .eq("id", lessonId)
     .maybeSingle();
 
@@ -186,6 +190,7 @@ export async function getLessonById(lessonId: string): Promise<LessonDetail | nu
     audioUrl: data.audio_url ?? null,
     videoUrl: data.video_url ?? null,
     imageUrl: data.image_url ?? null,
+    contentBlocks: Array.isArray(data.content_blocks) ? data.content_blocks : null,
     courseId: data.course_id,
   };
 }

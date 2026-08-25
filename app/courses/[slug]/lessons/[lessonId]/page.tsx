@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { usePreviewMode } from "@/lib/preview-mode-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { LessonBlocks, type LessonBlock } from "@/components/lesson-blocks";
 import { ArrowLeft, ArrowRight, FileText, Headphones, Video, Lock } from "lucide-react";
 
 // Renders lesson.bodyText, which uses a light convention rather than full
@@ -192,7 +193,9 @@ export default function LessonDetailPage() {
 
               <div className="relative z-10 -mt-[2px] rounded-b-md rounded-tr-md pt-6">
                 <TabsContent value="text">
-                  {lesson.bodyText ? (
+                  {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
+                    <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} />
+                  ) : lesson.bodyText ? (
                     <LessonBody text={lesson.bodyText} />
                   ) : (
                     <p className="text-sm text-muted-foreground">

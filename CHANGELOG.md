@@ -2,6 +2,25 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Interactive lesson content (Read tab)
+- Migration `add_lesson_content_blocks`: new `lessons.content_blocks` jsonb
+  column — an array of typed blocks (paragraph, list, reveal, knowledge
+  check, try-this, scenario) instead of plain text. Falls back to the
+  existing `body_text` when a lesson hasn't been authored in this format.
+- New `components/lesson-blocks.tsx` renders each block type as its own
+  small interactive React component: click-to-reveal cards, a quick
+  multiple-choice check with instant right/wrong feedback, a "try this"
+  self-check exercise with a scratch textarea (not saved — just for the
+  learner to think it through), and a branching scenario with per-choice
+  outcomes. All styled to match the existing neo-brutalist components.
+- Rewrote all 6 "Claude for Virtual Assistants" lessons into this format —
+  each mixes several block types rather than being a wall of text, and the
+  contracts lesson (`Analyzing Contracts and Documents Safely`) includes a
+  branching scenario about how far to trust Claude's flags on a clause.
+- Lesson-detail page's Read tab now prefers `content_blocks` over
+  `body_text` when present, so this is backward compatible with any
+  future lesson written the simpler plain-text way.
+
 ## 2026-08-25 — Admin preview sees premium content
 - Found and fixed a real gap: the course page never actually checked the
   signed-in user's plan — every premium lesson always showed "Upgrade,"

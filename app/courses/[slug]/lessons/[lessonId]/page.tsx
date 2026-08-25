@@ -151,6 +151,13 @@ export default function LessonDetailPage() {
       </div>
       <p className="mt-1 text-xs text-muted-foreground">{lesson.duration} micro-lesson</p>
 
+      {!locked && lesson.imageUrl && (
+        <div className="mt-6 overflow-hidden rounded-md border-2 border-black shadow-brutal">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={lesson.imageUrl} alt={`Key takeaways from ${lesson.title}`} className="w-full" />
+        </div>
+      )}
+
       <div className="mt-6 rounded-md border-2 border-black bg-card p-6 shadow-brutal">
         {locked ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">

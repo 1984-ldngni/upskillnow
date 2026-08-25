@@ -30,6 +30,7 @@ export type LessonDetail = Lesson & {
   bodyText: string | null;
   audioUrl: string | null;
   videoUrl: string | null;
+  imageUrl: string | null;
 };
 
 export type QuizQuestion = { question: string; options: string[]; answerIndex: number };
@@ -168,7 +169,7 @@ export async function getLessonById(lessonId: string): Promise<LessonDetail | nu
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("lessons")
-    .select("id, title, duration, is_premium, body_text, audio_url, video_url, course_id")
+    .select("id, title, duration, is_premium, body_text, audio_url, video_url, image_url, course_id")
     .eq("id", lessonId)
     .maybeSingle();
 
@@ -184,6 +185,7 @@ export async function getLessonById(lessonId: string): Promise<LessonDetail | nu
     bodyText: data.body_text ?? null,
     audioUrl: data.audio_url ?? null,
     videoUrl: data.video_url ?? null,
+    imageUrl: data.image_url ?? null,
     courseId: data.course_id,
   };
 }

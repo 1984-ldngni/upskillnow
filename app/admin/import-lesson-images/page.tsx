@@ -14,40 +14,10 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 // generation — not meant to be a permanent fixture of the admin area.
 const IMPORTS: { lessonId: string; title: string; sourceUrl: string }[] = [
   {
-    lessonId: "c25e5e15-ba98-49e2-9d13-4c03def63b43",
-    title: "What Makes Claude Different from ChatGPT",
-    sourceUrl:
-      "https://export-download.canva.com/PvQ6M/DAHTQtPvQ6M/-1/0/0001-3560609276710146033.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T072117Z&X-Amz-Expires=85725&X-Amz-Signature=2fb2bb885a5dd011f9f9abaf6c0143aa31fa9957157c034c883f978709a7a86e&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2007%3A10%3A02%20GMT",
-  },
-  {
     lessonId: "b0067b1f-8a24-46bd-afff-2f370b6770c6",
-    title: "Long-Document Analysis and Summarization",
+    title: "Long-Document Analysis and Summarization (regenerated — was illegible/garbled)",
     sourceUrl:
-      "https://export-download.canva.com/p6XOI/DAHTRIp6XOI/-1/0/0001-7699417331555511108.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T172912Z&X-Amz-Expires=48105&X-Amz-Signature=fc0298211a3f36f53d7d776d49d0aae30cb1836d3eb012d72618d0de42f246e5&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2006%3A50%3A57%20GMT",
-  },
-  {
-    lessonId: "55047f54-7a40-4e77-9df2-5cb606064501",
-    title: "Using Claude for Client Research",
-    sourceUrl:
-      "https://export-download.canva.com/Yicww/DAHTRMYicww/-1/0/0001-8512317061218982263.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260825%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260825T011656Z&X-Amz-Expires=17590&X-Amz-Signature=a6b536ae4a7563fe907c6a42a72c9708d82cbef74dbbf1d68bcc34db6d5f9276&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2006%3A10%3A06%20GMT",
-  },
-  {
-    lessonId: "87a51baa-1aa0-4bd6-98ce-b3b0391f3fec",
-    title: "Claude Projects for Ongoing Client Work",
-    sourceUrl:
-      "https://export-download.canva.com/asWSQ/DAHTRNasWSQ/-1/0/0001-7699417327386040923.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T205621Z&X-Amz-Expires=32099&X-Amz-Signature=eed1501a01a482de6a6742a30ef44d14f8030c3db32948081d5f1b4a82321f88&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2005%3A51%3A20%20GMT",
-  },
-  {
-    lessonId: "68c7f2f4-d918-44cc-8a7a-8e9842a94b1d",
-    title: "Analyzing Contracts and Documents Safely",
-    sourceUrl:
-      "https://export-download.canva.com/auyzg/DAHTRBauyzg/-1/0/0001-3183432802023952568.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T102148Z&X-Amz-Expires=72435&X-Amz-Signature=4aef675a67ec3a5159c09008e69df27cc9e31be10def5397e74f30b5b449cee2&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2006%3A29%3A03%20GMT",
-  },
-  {
-    lessonId: "45647807-41b4-4421-b482-207dd831c576",
-    title: "Advanced Prompting for Nuanced Writing",
-    sourceUrl:
-      "https://export-download.canva.com/iMyGo/DAHTRNiMyGo/-1/0/0001-6931553592316418337.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T170500Z&X-Amz-Expires=48909&X-Amz-Signature=0af324abebf0b62eb0e1185c29e547e6d6ee86564982ac94ed602bf44c5e6734&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2006%3A40%3A09%20GMT",
+      "https://export-download.canva.com/0p9P8/DAHTRj0p9P8/-1/0/0001-5185282846486197200.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T212327Z&X-Amz-Expires=36845&X-Amz-Signature=364b04c419ec9fed281aa46894a20bf78a7e63e3658e9b8b9879e1572a27ec58&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2007%3A37%3A32%20GMT",
   },
 ];
 

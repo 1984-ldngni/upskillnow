@@ -2,6 +2,24 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Interactive block sizing + lesson 2 infographic regenerated
+- `components/lesson-blocks.tsx`: knowledge-check, try-this, and scenario
+  cards now share a consistent `min-h-[220px]` so they don't look wildly
+  different in height lesson to lesson. Any text area that could run long
+  (reveal content, question text, explanation, checklist, scenario outcome)
+  is capped at a max height with internal scroll instead of stretching the
+  card — keeps the reading rhythm uniform without truncating content.
+  Checklist and explanation text also bumped from `text-xs` to `text-sm`.
+- Found a real content bug: lesson 2's Canva infographic had a section
+  with garbled, nonsense placeholder text baked into the image (a Canva
+  generation artifact, not something CSS can fix since it's pixels in a
+  PNG). Regenerated it with a tighter brief — exactly 4 sections, large
+  legible text, explicitly no filler/placeholder/invented quotes — and
+  swapped it into `lessons.image_url` via the admin import route.
+- Trimmed `app/admin/import-lesson-images/page.tsx` back down to just this
+  one lesson for the reimport; the other 5 pilot infographics are
+  unaffected.
+
 ## 2026-08-25 — Dark-mode contrast pass on fixed-light backgrounds
 - Found the same class of bug in two more places: any element with a
   hardcoded light background (not a theme-aware `bg-card`/`bg-secondary`

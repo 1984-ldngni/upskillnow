@@ -42,7 +42,11 @@ function Reveal({ block }: { block: RevealBlock }) {
         {block.prompt}
         <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="border-t-2 border-black bg-card px-4 py-3 text-sm leading-relaxed">{block.content}</div>}
+      {open && (
+        <div className="max-h-56 overflow-y-auto border-t-2 border-black bg-card px-4 py-3 text-sm leading-relaxed">
+          {block.content}
+        </div>
+      )}
     </div>
   );
 }
@@ -52,12 +56,12 @@ function KnowledgeCheck({ block }: { block: KnowledgeCheckBlock }) {
   const answered = selected !== null;
   const correct = selected === block.answerIndex;
   return (
-    <div className="rounded-md border-2 border-black bg-amber-50 p-4">
+    <div className="flex min-h-[220px] flex-col rounded-md border-2 border-black bg-amber-50 p-4">
       <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
         <Sparkles className="h-3.5 w-3.5" />
         Quick check
       </p>
-      <p className="mt-2 text-sm font-bold text-black">{block.question}</p>
+      <p className="mt-2 max-h-24 overflow-y-auto text-sm font-bold text-black">{block.question}</p>
       <div className="mt-3 space-y-2">
         {block.options.map((opt, i) => {
           const isSelected = selected === i;
@@ -84,7 +88,7 @@ function KnowledgeCheck({ block }: { block: KnowledgeCheckBlock }) {
         })}
       </div>
       {answered && (
-        <p className={`mt-3 text-xs font-medium ${correct ? "text-emerald-700" : "text-destructive"}`}>
+        <p className={`mt-3 max-h-24 overflow-y-auto text-sm font-medium ${correct ? "text-emerald-700" : "text-destructive"}`}>
           {correct ? "Correct. " : "Not quite. "}
           {block.explanation}
         </p>
@@ -97,9 +101,9 @@ function TryThis({ block }: { block: TryThisBlock }) {
   const [value, setValue] = useState("");
   const [showChecklist, setShowChecklist] = useState(false);
   return (
-    <div className="rounded-md border-2 border-black bg-secondary/60 p-4">
+    <div className="flex min-h-[220px] flex-col rounded-md border-2 border-black bg-secondary/60 p-4">
       <p className="text-xs font-bold uppercase tracking-wide text-primary">Try this</p>
-      <p className="mt-2 text-sm">{block.prompt}</p>
+      <p className="mt-2 max-h-20 overflow-y-auto text-sm">{block.prompt}</p>
       <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -114,7 +118,7 @@ function TryThis({ block }: { block: TryThisBlock }) {
         {showChecklist ? "Hide self-check" : "Show self-check"}
       </button>
       {showChecklist && (
-        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+        <ul className="mt-2 max-h-24 list-disc space-y-1 overflow-y-auto pl-5 text-sm text-muted-foreground">
           {block.checklist.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
@@ -127,9 +131,9 @@ function TryThis({ block }: { block: TryThisBlock }) {
 function Scenario({ block }: { block: ScenarioBlock }) {
   const [chosen, setChosen] = useState<number | null>(null);
   return (
-    <div className="rounded-md border-2 border-black bg-card p-4">
+    <div className="flex min-h-[220px] flex-col rounded-md border-2 border-black bg-card p-4">
       <p className="text-xs font-bold uppercase tracking-wide text-accent">Scenario</p>
-      <p className="mt-2 text-sm font-medium">{block.setup}</p>
+      <p className="mt-2 max-h-24 overflow-y-auto text-sm font-medium">{block.setup}</p>
       <div className="mt-3 space-y-2">
         {block.choices.map((choice, i) => (
           <button
@@ -144,7 +148,7 @@ function Scenario({ block }: { block: ScenarioBlock }) {
         ))}
       </div>
       {chosen !== null && (
-        <div className="mt-3 rounded-md border-2 border-black bg-secondary p-3 text-sm">
+        <div className="mt-3 max-h-32 overflow-y-auto rounded-md border-2 border-black bg-secondary p-3 text-sm">
           {block.choices[chosen].outcome}
         </div>
       )}

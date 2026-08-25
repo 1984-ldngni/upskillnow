@@ -81,6 +81,7 @@ export default function LessonDetailPage() {
   // focus mode. Only an explicit "Exit focus mode" click should do that.
   const FOCUS_MODE_KEY = "upskillnow-lesson-focus-mode";
   const [focusMode, setFocusModeState] = useState(false);
+  const [activeTab, setActiveTab] = useState("text");
 
   // "Listen" is a speaker icon on the Read tab rather than a separate tab —
   // it reads the lesson's narrative text (paragraphs/lists, skipping
@@ -92,6 +93,13 @@ export default function LessonDetailPage() {
   );
   const { supported: ttsSupported, playing: ttsPlaying, activeIndex: ttsActiveIndex, play: playTts, stop: stopTts } =
     useReadAloud(readableWords);
+
+  // Switching to Watch mid-narration would leave the audio playing with no
+  // visible highlight or stop control, so stop it when the tab changes away.
+  useEffect(() => {
+    if (activeTab !== "text" && ttsPlaying) stopTts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   useEffect(() => {
     if (window.sessionStorage.getItem(FOCUS_MODE_KEY) === "1") setFocusModeState(true);
@@ -229,38 +237,41 @@ export default function LessonDetailPage() {
           )}
 
           <div className={`flex flex-col rounded-md border-2 border-black bg-card p-6 shadow-brutal ${lesson.imageUrl ? "md:h-[85vh] md:min-h-[760px]" : ""}`}>
-            <Tabs defaultValue="text" className="flex min-h-0 flex-1 flex-col">
-              <TabsList className="shrink-0">
-                <TabsTrigger value="text">
-                  <FileText className="h-4 w-4 text-primary" />
-                  Read
-                </TabsTrigger>
-                <TabsTrigger value="video">
-                  <Video className="h-4 w-4 text-accent" />
-                  Watch
-                </TabsTrigger>
-              </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex min-h-0 flex-1 flex-col">
+              <div className="flex shrink-0 flex-wrap items-end justify-between gap-2">
+                <TabsList>
+                  <TabsTrigger value="text">
+                    <FileText className="h-4 w-4 text-primary" />
+                    Read
+                  </TabsTrigger>
+                  <TabsTrigger value="video">
+                    <Video className="h-4 w-4 text-accent" />
+                    Watch
+                  </TabsTrigger>
+                </TabsList>
+
+                {activeTab === "text" && readableWords.length > 0 && ttsSupported && (
+                  <button
+                    onClick={ttsPlaying ? stopTts : playTts}
+                    className="mb-1 inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 shadow-brutal-sm transition-transform hover:-translate-y-0.5"
+                  >
+                    {ttsPlaying ? (
+                      <>
+                        <Square className="h-3.5 w-3.5 fill-current" />
+                        Stop listening
+                      </>
+                    ) : (
+                      <>
+                        <Headphones className="h-3.5 w-3.5" />
+                        Listen to this lesson
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
 
               <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pt-6">
                 <TabsContent value="text">
-                  {readableWords.length > 0 && ttsSupported && (
-                    <button
-                      onClick={ttsPlaying ? stopTts : playTts}
-                      className="mb-4 inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 shadow-brutal-sm transition-transform hover:-translate-y-0.5"
-                    >
-                      {ttsPlaying ? (
-                        <>
-                          <Square className="h-3.5 w-3.5 fill-current" />
-                          Stop listening
-                        </>
-                      ) : (
-                        <>
-                          <Headphones className="h-3.5 w-3.5" />
-                          Listen to this lesson
-                        </>
-                      )}
-                    </button>
-                  )}
                   {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
                     <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} activeWordIndex={ttsPlaying ? ttsActiveIndex : undefined} />
                   ) : lesson.bodyText ? (

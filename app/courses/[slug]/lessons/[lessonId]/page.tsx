@@ -62,7 +62,21 @@ export default function LessonDetailPage() {
   const [complete, setComplete] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
+  // Persisted in sessionStorage (same pattern as preview-mode-context) so
+  // clicking Next/Previous — a full navigation to a new lesson page, which
+  // remounts this component — doesn't silently drop the user back out of
+  // focus mode. Only an explicit "Exit focus mode" click should do that.
+  const FOCUS_MODE_KEY = "upskillnow-lesson-focus-mode";
+  const [focusMode, setFocusModeState] = useState(false);
+
+  useEffect(() => {
+    if (window.sessionStorage.getItem(FOCUS_MODE_KEY) === "1") setFocusModeState(true);
+  }, []);
+
+  function setFocusMode(next: boolean) {
+    window.sessionStorage.setItem(FOCUS_MODE_KEY, next ? "1" : "0");
+    setFocusModeState(next);
+  }
 
   useEffect(() => {
     if (authLoading) return;
@@ -145,7 +159,7 @@ export default function LessonDetailPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to {course.title}
         </Link>
-        <Button size="sm" variant="outline" onClick={() => setFocusMode((v) => !v)}>
+        <Button size="sm" variant="outline" onClick={() => setFocusMode(!focusMode)}>
           {focusMode ? (
             <>
               <Minimize2 className="mr-1.5 h-3.5 w-3.5" />

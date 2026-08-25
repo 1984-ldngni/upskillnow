@@ -2,6 +2,13 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Focus mode now survives Next/Previous
+- Focus mode was plain component state, so clicking Next/Previous — a
+  real navigation to a new lesson page that remounts the component —
+  silently dropped the user back to the normal layout. Now persisted in
+  sessionStorage (same pattern as `preview-mode-context`), so it stays on
+  across lessons until "Exit focus mode" is clicked explicitly.
+
 ## 2026-08-25 — Focus mode on lessons
 - `components/app-shell.tsx`: new optional `focusMode` prop. When on (and
   signed in), the sidebar, topbar, and preview-mode banner are hidden

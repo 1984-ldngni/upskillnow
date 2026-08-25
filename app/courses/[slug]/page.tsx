@@ -20,13 +20,20 @@ import {
   type QuizQuestion,
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { usePreviewMode } from "@/lib/preview-mode-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { PlayCircle, Lock, CheckCircle2, Award } from "lucide-react";
 
 export default function CourseLessonPage() {
   const params = useParams<{ slug: string }>();
   const router = useRouter();
-  const { loading: authLoading, userId } = useAuth();
+  const { loading: authLoading, userId, profile, isAdmin } = useAuth();
+  const { previewingAsLearner } = usePreviewMode();
+  // Real Pro/Team plans unlock premium lessons as normal. Admins previewing
+  // as a learner also get full access — otherwise there'd be no way to
+  // actually see what a paying learner sees without a second paid test
+  // account, which defeats the point of "preview as learner."
+  const hasPremiumAccess = profile?.plan === "pro" || profile?.plan === "team" || (isAdmin && previewingAsLearner);
 
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -150,7 +157,7 @@ export default function CourseLessonPage() {
               <Card key={lesson.id} className="transition-colors hover:bg-amber-300">
                 <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
                   <div className="flex items-center gap-3">
-                    {lesson.isPremium ? (
+                    {lesson.isPremium && !hasPremiumAccess ? (
                       <Lock className="h-5 w-5 text-muted-foreground" />
                     ) : complete ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -165,7 +172,7 @@ export default function CourseLessonPage() {
                       <p className="text-xs text-muted-foreground">{lesson.duration} micro-lesson</p>
                     </Link>
                   </div>
-                  {lesson.isPremium ? (
+                  {lesson.isPremium && !hasPremiumAccess ? (
                     <Link href="/#pricing">
                       <Button size="sm" variant="outline">Upgrade</Button>
                     </Link>

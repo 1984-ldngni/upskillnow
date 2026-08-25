@@ -18,6 +18,7 @@ import {
   type LessonDetail,
 } from "@/lib/data";
 import { useAuth } from "@/lib/auth-context";
+import { usePreviewMode } from "@/lib/preview-mode-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { ArrowLeft, ArrowRight, FileText, Headphones, Video, Lock } from "lucide-react";
 
@@ -51,7 +52,8 @@ function LessonBody({ text }: { text: string }) {
 export default function LessonDetailPage() {
   const params = useParams<{ slug: string; lessonId: string }>();
   const router = useRouter();
-  const { loading: authLoading, userId, profile } = useAuth();
+  const { loading: authLoading, userId, profile, isAdmin } = useAuth();
+  const { previewingAsLearner } = usePreviewMode();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
@@ -125,7 +127,8 @@ export default function LessonDetailPage() {
     );
   }
 
-  const locked = lesson.isPremium && profile?.plan === "free";
+  const hasPremiumAccess = profile?.plan === "pro" || profile?.plan === "team" || (isAdmin && previewingAsLearner);
+  const locked = lesson.isPremium && !hasPremiumAccess;
   const index = siblingLessons.findIndex((l) => l.id === lesson.id);
   const prevLesson = index > 0 ? siblingLessons[index - 1] : null;
   const nextLesson = index >= 0 && index < siblingLessons.length - 1 ? siblingLessons[index + 1] : null;

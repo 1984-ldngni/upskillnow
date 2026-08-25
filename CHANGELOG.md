@@ -2,6 +2,21 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Admin preview sees premium content
+- Found and fixed a real gap: the course page never actually checked the
+  signed-in user's plan — every premium lesson always showed "Upgrade,"
+  even for genuine Pro/Team subscribers. Both `app/courses/[slug]/page.tsx`
+  and the new lesson-detail page now compute `hasPremiumAccess` from
+  `profile.plan` and unlock premium lessons for real Pro/Team users.
+- Admins in "Preview as Learner" mode also get `hasPremiumAccess`, so they
+  can review what paid content actually looks like without needing a
+  second paid test account.
+- Migration `allow_admin_bypass_premium_lesson_gating`: extended the
+  `lesson_completions` insert/update RLS policies to also allow the row
+  when `profiles.role = 'admin'`, not just `plan in (pro, team)` — so
+  clicking "Mark complete" on a premium lesson while previewing as an
+  admin doesn't silently fail against the database.
+
 ## 2026-08-25 — Mustard hover on lesson rows
 - Lesson cards on the course page now highlight `amber-300` (the same
   mustard used for the preview-mode banner) on hover, matching the

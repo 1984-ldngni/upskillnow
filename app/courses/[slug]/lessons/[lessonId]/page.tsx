@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
@@ -20,16 +20,18 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { usePreviewMode } from "@/lib/preview-mode-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { LessonBlocks, type LessonBlock } from "@/components/lesson-blocks";
-import { ArrowLeft, ArrowRight, FileText, Headphones, Video, Lock, Maximize2, Minimize2 } from "lucide-react";
+import { LessonBlocks, ReadableText, type LessonBlock } from "@/components/lesson-blocks";
+import { getReadableWords, useReadAloud } from "@/lib/read-aloud";
+import { ArrowLeft, ArrowRight, FileText, Headphones, Square, Video, Lock, Maximize2, Minimize2 } from "lucide-react";
 
 // Renders lesson.bodyText, which uses a light convention rather than full
 // markdown: paragraphs separated by a blank line, and lines starting with
 // "- " rendered as a bullet list. Keeps content authoring simple (plain text
 // in the DB) without pulling in a markdown parser for what's still a small
 // amount of content.
-function LessonBody({ text }: { text: string }) {
+function LessonBody({ text, activeWordIndex }: { text: string; activeWordIndex?: number }) {
   const blocks = text.trim().split(/\n\n+/);
+  const counter = { current: 0 };
   return (
     <div className="space-y-4 text-sm leading-relaxed">
       {blocks.map((block, i) => {
@@ -39,12 +41,23 @@ function LessonBody({ text }: { text: string }) {
           return (
             <ul key={i} className="list-disc space-y-1.5 pl-5">
               {lines.map((l, j) => (
-                <li key={j}>{l.trim().replace(/^-\s*/, "")}</li>
+                <li key={j}>
+                  <ReadableText
+                    text={l.trim().replace(/^-\s*/, "")}
+                    counter={counter}
+                    activeWordIndex={activeWordIndex}
+                    keyPrefix={`bl${i}-${j}`}
+                  />
+                </li>
               ))}
             </ul>
           );
         }
-        return <p key={i}>{block}</p>;
+        return (
+          <p key={i}>
+            <ReadableText text={block} counter={counter} activeWordIndex={activeWordIndex} keyPrefix={`bp${i}`} />
+          </p>
+        );
       })}
     </div>
   );
@@ -68,6 +81,17 @@ export default function LessonDetailPage() {
   // focus mode. Only an explicit "Exit focus mode" click should do that.
   const FOCUS_MODE_KEY = "upskillnow-lesson-focus-mode";
   const [focusMode, setFocusModeState] = useState(false);
+
+  // "Listen" is a speaker icon on the Read tab rather than a separate tab —
+  // it reads the lesson's narrative text (paragraphs/lists, skipping
+  // interactive blocks) aloud via the browser's built-in speechSynthesis,
+  // highlighting each word as it's spoken. Free, no API key, works offline.
+  const readableWords = useMemo(
+    () => getReadableWords((lesson?.contentBlocks as LessonBlock[] | null) ?? null, lesson?.bodyText ?? null),
+    [lesson]
+  );
+  const { supported: ttsSupported, playing: ttsPlaying, activeIndex: ttsActiveIndex, play: playTts, stop: stopTts } =
+    useReadAloud(readableWords);
 
   useEffect(() => {
     if (window.sessionStorage.getItem(FOCUS_MODE_KEY) === "1") setFocusModeState(true);
@@ -211,10 +235,6 @@ export default function LessonDetailPage() {
                   <FileText className="h-4 w-4 text-primary" />
                   Read
                 </TabsTrigger>
-                <TabsTrigger value="audio">
-                  <Headphones className="h-4 w-4 text-amber-500" />
-                  Listen
-                </TabsTrigger>
                 <TabsTrigger value="video">
                   <Video className="h-4 w-4 text-accent" />
                   Watch
@@ -223,23 +243,31 @@ export default function LessonDetailPage() {
 
               <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pt-6">
                 <TabsContent value="text">
+                  {readableWords.length > 0 && ttsSupported && (
+                    <button
+                      onClick={ttsPlaying ? stopTts : playTts}
+                      className="mb-4 inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-amber-100 px-3 py-1.5 text-xs font-bold text-amber-800 shadow-brutal-sm transition-transform hover:-translate-y-0.5"
+                    >
+                      {ttsPlaying ? (
+                        <>
+                          <Square className="h-3.5 w-3.5 fill-current" />
+                          Stop listening
+                        </>
+                      ) : (
+                        <>
+                          <Headphones className="h-3.5 w-3.5" />
+                          Listen to this lesson
+                        </>
+                      )}
+                    </button>
+                  )}
                   {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
-                    <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} />
+                    <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} activeWordIndex={ttsPlaying ? ttsActiveIndex : undefined} />
                   ) : lesson.bodyText ? (
-                    <LessonBody text={lesson.bodyText} />
+                    <LessonBody text={lesson.bodyText} activeWordIndex={ttsPlaying ? ttsActiveIndex : undefined} />
                   ) : (
                     <p className="text-sm text-muted-foreground">
                       The written version of this lesson isn't ready yet — check back soon.
-                    </p>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="audio">
-                  {lesson.audioUrl ? (
-                    <audio controls className="w-full" src={lesson.audioUrl} />
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      The audio version of this lesson isn't ready yet — check back soon.
                     </p>
                   )}
                 </TabsContent>

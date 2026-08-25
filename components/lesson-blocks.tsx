@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { splitIntoWords } from "@/lib/read-aloud";
 
 // The Read tab's structured, interactive content format. Each lesson's
 // content_blocks column is an array of these — mixing plain reading with
@@ -156,18 +157,59 @@ function Scenario({ block }: { block: ScenarioBlock }) {
   );
 }
 
-export function LessonBlocks({ blocks }: { blocks: LessonBlock[] }) {
+// Renders `text` as individual word spans, consuming and advancing a shared
+// counter (passed by reference) so word indices stay continuous across
+// paragraphs, list items, and blocks. Whitespace is preserved as plain text
+// (not counted) so visual spacing is unaffected — only non-whitespace tokens
+// get an index, matching splitIntoWords' tokenization exactly so the Listen
+// feature's activeWordIndex lines up with the right span.
+export function ReadableText({
+  text,
+  counter,
+  activeWordIndex,
+  keyPrefix,
+}: {
+  text: string;
+  counter: { current: number };
+  activeWordIndex?: number;
+  keyPrefix: string;
+}) {
+  const tokens = text.split(/(\s+)/);
+  return (
+    <>
+      {tokens.map((token, i) => {
+        if (token === "" || /^\s+$/.test(token)) return token;
+        const idx = counter.current++;
+        const active = activeWordIndex !== undefined && idx === activeWordIndex;
+        return (
+          <span key={`${keyPrefix}-${i}`} className={active ? "rounded bg-amber-200 text-black" : undefined}>
+            {token}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+export function LessonBlocks({ blocks, activeWordIndex }: { blocks: LessonBlock[]; activeWordIndex?: number }) {
+  const counter = { current: 0 };
   return (
     <div className="space-y-4 text-sm leading-relaxed">
       {blocks.map((block, i) => {
         switch (block.type) {
           case "paragraph":
-            return <p key={i}>{block.text}</p>;
+            return (
+              <p key={i}>
+                <ReadableText text={block.text} counter={counter} activeWordIndex={activeWordIndex} keyPrefix={`p${i}`} />
+              </p>
+            );
           case "list":
             return (
               <ul key={i} className="list-disc space-y-1.5 pl-5">
                 {block.items.map((item, j) => (
-                  <li key={j}>{item}</li>
+                  <li key={j}>
+                    <ReadableText text={item} counter={counter} activeWordIndex={activeWordIndex} keyPrefix={`l${i}-${j}`} />
+                  </li>
                 ))}
               </ul>
             );

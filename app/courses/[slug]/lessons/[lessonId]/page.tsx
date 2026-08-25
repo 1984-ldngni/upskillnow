@@ -168,13 +168,13 @@ export default function LessonDetailPage() {
       ) : (
         <div className={`mt-6 grid gap-6 ${lesson.imageUrl ? "md:grid-cols-2 md:items-stretch" : ""}`}>
           {lesson.imageUrl && (
-            <div className="overflow-y-auto rounded-md border-2 border-black shadow-brutal md:h-[640px]">
+            <div className="overflow-y-auto rounded-md border-2 border-black shadow-brutal md:h-[85vh] md:min-h-[760px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={lesson.imageUrl} alt={`Key takeaways from ${lesson.title}`} className="w-full" />
             </div>
           )}
 
-          <div className={`flex flex-col rounded-md border-2 border-black bg-card p-6 shadow-brutal ${lesson.imageUrl ? "md:h-[640px]" : ""}`}>
+          <div className={`flex flex-col rounded-md border-2 border-black bg-card p-6 shadow-brutal ${lesson.imageUrl ? "md:h-[85vh] md:min-h-[760px]" : ""}`}>
             <Tabs defaultValue="text" className="flex min-h-0 flex-1 flex-col">
               <TabsList className="shrink-0">
                 <TabsTrigger value="text">

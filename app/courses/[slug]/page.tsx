@@ -147,7 +147,7 @@ export default function CourseLessonPage() {
           {lessons.map((lesson, i) => {
             const complete = completedIds.has(lesson.id);
             return (
-              <Card key={lesson.id}>
+              <Card key={lesson.id} className="transition-colors hover:bg-amber-300">
                 <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
                   <div className="flex items-center gap-3">
                     {lesson.isPremium ? (

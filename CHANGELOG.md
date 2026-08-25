@@ -2,6 +2,11 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Mustard hover on lesson rows
+- Lesson cards on the course page now highlight `amber-300` (the same
+  mustard used for the preview-mode banner) on hover, matching the
+  existing brand palette instead of introducing a new color.
+
 ## 2026-08-25 — Lesson content, pilot (text)
 - Found that lessons had no actual content — just title/duration metadata
   with a "mark complete" checkbox and nowhere for the lesson title to link

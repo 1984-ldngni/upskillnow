@@ -17,13 +17,13 @@ const IMPORTS: { lessonId: string; title: string; sourceUrl: string }[] = [
     lessonId: "c25e5e15-ba98-49e2-9d13-4c03def63b43",
     title: "What Makes Claude Different from ChatGPT",
     sourceUrl:
-      "https://export-download.canva.com/PvQ6M/DAHTQtPvQ6M/-1/0/0001-4818239460824143537.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T100013Z&X-Amz-Expires=66555&X-Amz-Signature=37bd678f4151cad8ee00133625c4f9037b4acc434caebe0a60059580ce840272&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2004%3A29%3A28%20GMT",
+      "https://export-download.canva.com/PvQ6M/DAHTQtPvQ6M/-1/0/0001-3560609276710146033.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T072117Z&X-Amz-Expires=85725&X-Amz-Signature=2fb2bb885a5dd011f9f9abaf6c0143aa31fa9957157c034c883f978709a7a86e&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2007%3A10%3A02%20GMT",
   },
   {
     lessonId: "b0067b1f-8a24-46bd-afff-2f370b6770c6",
     title: "Long-Document Analysis and Summarization",
     sourceUrl:
-      "https://export-download.canva.com/p6XOI/DAHTRIp6XOI/-1/0/0001-9052749018371878264.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T232827Z&X-Amz-Expires=21760&X-Amz-Signature=51d9ad36d9141d2e2be3b319ebb78aef55862b6d850baa12fb4acd2213bd648e&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2005%3A31%3A07%20GMT",
+      "https://export-download.canva.com/p6XOI/DAHTRIp6XOI/-1/0/0001-7699417331555511108.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T172912Z&X-Amz-Expires=48105&X-Amz-Signature=fc0298211a3f36f53d7d776d49d0aae30cb1836d3eb012d72618d0de42f246e5&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2006%3A50%3A57%20GMT",
   },
   {
     lessonId: "55047f54-7a40-4e77-9df2-5cb606064501",

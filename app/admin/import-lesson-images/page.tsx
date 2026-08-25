@@ -14,28 +14,28 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 // generation — not meant to be a permanent fixture of the admin area.
 const IMPORTS: { lessonId: string; title: string; sourceUrl: string }[] = [
   {
-    lessonId: "b0067b1f-8a24-46bd-afff-2f370b6770c6",
-    title: "Long-Document Analysis and Summarization (body/caption text enlarged directly, not regenerated)",
+    lessonId: "c25e5e15-ba98-49e2-9d13-4c03def63b43",
+    title: "What Makes Claude Different from ChatGPT (removed 'Virtual Assistant' wording baked into image)",
     sourceUrl:
-      "https://export-download.canva.com/0p9P8/DAHTRj0p9P8/-1/0/0001-5587229149577587110.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T171323Z&X-Amz-Expires=85618&X-Amz-Signature=6857a74c9f66895e8c6d9809b2baae80035d819d171bc91e602d105864a7cd34&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2017%3A00%3A21%20GMT",
+      "https://export-download.canva.com/PvQ6M/DAHTQtPvQ6M/-1/0/0001-8873730985665786354.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T214111Z&X-Amz-Expires=78373&X-Amz-Signature=5ee0e901105c4f60388a151fcfd986483c53204290b07e0dae971e879519fd20&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2019%3A27%3A24%20GMT",
+  },
+  {
+    lessonId: "b0067b1f-8a24-46bd-afff-2f370b6770c6",
+    title: "Long-Document Analysis and Summarization (removed 'virtual assistants' wording baked into image)",
+    sourceUrl:
+      "https://export-download.canva.com/0p9P8/DAHTRj0p9P8/-1/0/0001-66941917945438112.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T215603Z&X-Amz-Expires=78153&X-Amz-Signature=742ca9890a95dc45ade87f1e59ef53a5b5eaf5e001e8025f615b4e981cfe5107&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2019%3A38%3A36%20GMT",
   },
   {
     lessonId: "55047f54-7a40-4e77-9df2-5cb606064501",
-    title: "Using Claude for Client Research (body/caption text enlarged directly, not regenerated)",
+    title: "Using Claude for Client Research (removed 'Essential Insights for VAs' wording baked into image)",
     sourceUrl:
-      "https://export-download.canva.com/UBUKA/DAHTRiUBUKA/-1/0/0001-592737162589204995.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260825%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260825T004020Z&X-Amz-Expires=58871&X-Amz-Signature=00c168f64ff5b03582248cd7d9e136bad2df3e2264571fbec45fb38a196b9abf&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2017%3A01%3A31%20GMT",
+      "https://export-download.canva.com/UBUKA/DAHTRiUBUKA/-1/0/0001-3252112753822669894.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260825%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260825T041749Z&X-Amz-Expires=54373&X-Amz-Signature=9aaff46c9b9ca5263205cf675d30939967c4b25d9b864558f210874ea268b3d1&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2019%3A24%3A02%20GMT",
   },
   {
     lessonId: "87a51baa-1aa0-4bd6-98ce-b3b0391f3fec",
-    title: "Claude Projects for Ongoing Client Work (body/caption text enlarged directly, not regenerated)",
+    title: "Claude Projects for Ongoing Client Work (removed 'Essential Tips for Virtual Assistants' wording baked into image)",
     sourceUrl:
-      "https://export-download.canva.com/cB_Dg/DAHTRrcB_Dg/-1/0/0001-846064642219638932.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260824%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260824T230948Z&X-Amz-Expires=63594&X-Amz-Signature=5e938a4fdd582c7dbb2aea345f6b3a5ece914bc3b4ef88aeac49666740383705&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2016%3A49%3A42%20GMT",
-  },
-  {
-    lessonId: "68c7f2f4-d918-44cc-8a7a-8e9842a94b1d",
-    title: "Analyzing Contracts and Documents Safely (body/caption text enlarged directly, was never regenerated before)",
-    sourceUrl:
-      "https://export-download.canva.com/auyzg/DAHTRBauyzg/-1/0/0001-6259391393817498482.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260825%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260825T130052Z&X-Amz-Expires=14855&X-Amz-Signature=4fc433435eb20879df504ae2a9882c9c6cc9ce828506df403b151663315aecdb&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2017%3A08%3A27%20GMT",
+      "https://export-download.canva.com/cB_Dg/DAHTRrcB_Dg/-1/0/0001-2120583346786307753.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQYCGKMUH5AO7UJ26%2F20260825%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260825T154751Z&X-Amz-Expires=12635&X-Amz-Signature=25218a1bc090c663fb207628fb4ffa310582705984756db9d39802a5b7c6af23&X-Amz-SignedHeaders=host%3Bx-amz-expected-bucket-owner&response-expires=Tue%2C%2025%20Aug%202026%2019%3A18%3A26%20GMT",
   },
 ];
 
@@ -90,8 +90,8 @@ export default function ImportLessonImagesPage() {
       <h1 className="font-heading text-2xl font-black">Import lesson infographics</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         One-off tool: pulls the latest Canva exports into permanent storage. Safe to run more than once
-        (upserts). Lessons 1 and 5 aren&apos;t listed here — their infographics already had large,
-        readable text and didn&apos;t need this fix.
+        (upserts). Lessons 5 and 6 aren&apos;t listed here — their infographics were already clean of
+        VA-specific wording and didn&apos;t need this fix.
       </p>
       <Button className="mt-4" onClick={runImport} disabled={running}>
         {running ? "Running…" : "Run import"}

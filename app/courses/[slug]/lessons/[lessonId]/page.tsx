@@ -134,7 +134,7 @@ export default function LessonDetailPage() {
   const nextLesson = index >= 0 && index < siblingLessons.length - 1 ? siblingLessons[index + 1] : null;
 
   return (
-    <AppShell maxWidth="max-w-3xl">
+    <AppShell maxWidth="max-w-5xl">
       <Link
         href={`/courses/${course.slug}`}
         className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
@@ -151,15 +151,8 @@ export default function LessonDetailPage() {
       </div>
       <p className="mt-1 text-xs text-muted-foreground">{lesson.duration} micro-lesson</p>
 
-      {!locked && lesson.imageUrl && (
-        <div className="mt-6 overflow-hidden rounded-md border-2 border-black shadow-brutal">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={lesson.imageUrl} alt={`Key takeaways from ${lesson.title}`} className="w-full" />
-        </div>
-      )}
-
-      <div className="mt-6 rounded-md border-2 border-black bg-card p-6 shadow-brutal">
-        {locked ? (
+      {locked ? (
+        <div className="mt-6 rounded-md border-2 border-black bg-card p-6 shadow-brutal">
           <div className="flex flex-col items-center gap-3 py-8 text-center">
             <Lock className="h-8 w-8 text-muted-foreground" />
             <p className="font-heading text-lg font-black">This lesson is Pro-only</p>
@@ -170,58 +163,69 @@ export default function LessonDetailPage() {
               <Button className="mt-1">Upgrade to unlock</Button>
             </Link>
           </div>
-        ) : (
-          <Tabs defaultValue="text">
-            <TabsList>
-              <TabsTrigger value="text">
-                <FileText className="h-4 w-4 text-primary" />
-                Read
-              </TabsTrigger>
-              <TabsTrigger value="audio">
-                <Headphones className="h-4 w-4 text-amber-500" />
-                Listen
-              </TabsTrigger>
-              <TabsTrigger value="video">
-                <Video className="h-4 w-4 text-accent" />
-                Watch
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="relative z-10 -mt-[2px] rounded-b-md rounded-tr-md pt-6">
-              <TabsContent value="text">
-                {lesson.bodyText ? (
-                  <LessonBody text={lesson.bodyText} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    The written version of this lesson isn't ready yet — check back soon.
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value="audio">
-                {lesson.audioUrl ? (
-                  <audio controls className="w-full" src={lesson.audioUrl} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    The audio version of this lesson isn't ready yet — check back soon.
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value="video">
-                {lesson.videoUrl ? (
-                  // eslint-disable-next-line jsx-a11y/media-has-caption
-                  <video controls className="w-full rounded-md border-2 border-black" src={lesson.videoUrl} />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    The video version of this lesson isn't ready yet — check back soon.
-                  </p>
-                )}
-              </TabsContent>
+        </div>
+      ) : (
+        <div className={`mt-6 grid gap-6 ${lesson.imageUrl ? "md:grid-cols-2 md:items-start" : ""}`}>
+          {lesson.imageUrl && (
+            <div className="overflow-hidden rounded-md border-2 border-black shadow-brutal md:sticky md:top-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={lesson.imageUrl} alt={`Key takeaways from ${lesson.title}`} className="w-full" />
             </div>
-          </Tabs>
-        )}
-      </div>
+          )}
+
+          <div className="rounded-md border-2 border-black bg-card p-6 shadow-brutal">
+            <Tabs defaultValue="text">
+              <TabsList>
+                <TabsTrigger value="text">
+                  <FileText className="h-4 w-4 text-primary" />
+                  Read
+                </TabsTrigger>
+                <TabsTrigger value="audio">
+                  <Headphones className="h-4 w-4 text-amber-500" />
+                  Listen
+                </TabsTrigger>
+                <TabsTrigger value="video">
+                  <Video className="h-4 w-4 text-accent" />
+                  Watch
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="relative z-10 -mt-[2px] rounded-b-md rounded-tr-md pt-6">
+                <TabsContent value="text">
+                  {lesson.bodyText ? (
+                    <LessonBody text={lesson.bodyText} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      The written version of this lesson isn't ready yet — check back soon.
+                    </p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="audio">
+                  {lesson.audioUrl ? (
+                    <audio controls className="w-full" src={lesson.audioUrl} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      The audio version of this lesson isn't ready yet — check back soon.
+                    </p>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="video">
+                  {lesson.videoUrl ? (
+                    // eslint-disable-next-line jsx-a11y/media-has-caption
+                    <video controls className="w-full rounded-md border-2 border-black" src={lesson.videoUrl} />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      The video version of this lesson isn't ready yet — check back soon.
+                    </p>
+                  )}
+                </TabsContent>
+              </div>
+            </Tabs>
+          </div>
+        </div>
+      )}
 
       {!locked && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">

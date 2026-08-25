@@ -109,15 +109,17 @@ export function NotificationBell() {
               const content = (
                 <div
                   className={`border-b-2 border-black px-4 py-3 text-sm last:border-b-0 hover:bg-secondary ${
-                    n.read_at ? "" : "bg-amber-100/60"
+                    n.read_at ? "" : "bg-amber-100/60 text-black"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <p className="font-bold">{n.title}</p>
                     {!n.read_at && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />}
                   </div>
-                  <p className="mt-0.5 text-muted-foreground">{n.body}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{timeAgo(n.created_at)}</p>
+                  <p className={`mt-0.5 ${n.read_at ? "text-muted-foreground" : "text-black/70"}`}>{n.body}</p>
+                  <p className={`mt-1 text-xs ${n.read_at ? "text-muted-foreground" : "text-black/50"}`}>
+                    {timeAgo(n.created_at)}
+                  </p>
                 </div>
               );
               return n.link ? (

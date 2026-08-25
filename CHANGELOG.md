@@ -2,6 +2,22 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Dark-mode contrast pass on fixed-light backgrounds
+- Found the same class of bug in two more places: any element with a
+  hardcoded light background (not a theme-aware `bg-card`/`bg-secondary`
+  token) paired with inherited/default text color goes invisible in dark
+  mode, since the default text color flips to near-white.
+- `components/lesson-blocks.tsx`: the knowledge-check card's question text
+  and its correct/incorrect answer states sit on fixed `bg-amber-50` /
+  `bg-emerald-100` / `bg-destructive/10` — all now force `text-black`.
+- `components/notification-bell.tsx`: unread notifications get a
+  `bg-amber-100/60` highlight; title/body/timestamp now force black text
+  (at reduced opacity for the secondary lines) only on unread rows — read
+  rows keep the normal theme-aware muted-foreground color.
+- Audited the rest of the fixed-light-background usages app-wide (badges,
+  preview-mode banner, chat bubble) — those already had explicit
+  `text-black` set, so this was scoped to the two components above.
+
 ## 2026-08-25 — Fixed unreadable lesson-row hover in dark mode
 - The mustard hover on course lesson rows used the theme's default text
   color, which is near-white in dark mode — unreadable against the light

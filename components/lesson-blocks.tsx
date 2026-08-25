@@ -57,7 +57,7 @@ function KnowledgeCheck({ block }: { block: KnowledgeCheckBlock }) {
         <Sparkles className="h-3.5 w-3.5" />
         Quick check
       </p>
-      <p className="mt-2 text-sm font-bold">{block.question}</p>
+      <p className="mt-2 text-sm font-bold text-black">{block.question}</p>
       <div className="mt-3 space-y-2">
         {block.options.map((opt, i) => {
           const isSelected = selected === i;
@@ -70,9 +70,9 @@ function KnowledgeCheck({ block }: { block: KnowledgeCheckBlock }) {
               onClick={() => setSelected(i)}
               className={`flex w-full items-center justify-between gap-2 rounded-md border-2 px-3 py-2 text-left text-sm font-medium transition-colors ${
                 showCorrect
-                  ? "border-emerald-600 bg-emerald-100"
+                  ? "border-emerald-600 bg-emerald-100 text-black"
                   : showWrong
-                  ? "border-destructive bg-destructive/10"
+                  ? "border-destructive bg-destructive/10 text-black"
                   : "border-black bg-card hover:bg-secondary disabled:hover:bg-card"
               }`}
             >

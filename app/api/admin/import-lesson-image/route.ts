@@ -71,7 +71,12 @@ export async function POST(req: Request) {
     }
 
     const { data: publicUrlData } = supabase.storage.from("lesson-images").getPublicUrl(path);
-    const imageUrl = publicUrlData.publicUrl;
+    // Cache-bust: the storage path is always `${lessonId}.png`, so a
+    // re-import (e.g. regenerating a broken infographic) overwrites the
+    // same URL — which browsers/CDNs will happily keep serving the old
+    // cached bytes for. Appending a version query param forces every
+    // import to be treated as a distinct resource.
+    const imageUrl = `${publicUrlData.publicUrl}?v=${Date.now()}`;
 
     const { error: updateError } = await supabase
       .from("lessons")

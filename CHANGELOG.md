@@ -2,6 +2,28 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Matched-height lesson layout + more infographics regenerated
+- `app/courses/[slug]/lessons/[lessonId]/page.tsx`: the infographic column
+  and the Read/Listen/Watch card now share a fixed height (`640px` on
+  desktop) instead of the image just running however long it ran and the
+  text column being separately sized. Each column scrolls independently
+  inside that fixed height when its own content is taller, so neither one
+  stretches the layout or gets cut off. This is the single shared
+  lesson-detail template, so it applies to every lesson in every course
+  automatically — nothing per-course to redo later.
+- Fixed a caching bug in the admin import route: the storage path is
+  always `${lessonId}.png`, so reimporting a fixed infographic overwrote
+  the same URL, which the browser kept serving stale cached bytes for.
+  The stored `image_url` now includes a `?v=<timestamp>` cache-buster so
+  every import is treated as a fresh resource.
+- Regenerated lessons 1, 3, and 4's infographics too (on top of lesson
+  2's earlier fix) — the original prompt allowed smaller caption text
+  under each headline, which rendered too small to read. All four now
+  use a tightened brief requiring every piece of text, not just
+  headlines, to be large and legible.
+- Lessons 5 and 6 still need the same regeneration but Canva's generation
+  quota was hit mid-batch — picking this back up once it resets.
+
 ## 2026-08-25 — Interactive block sizing + lesson 2 infographic regenerated
 - `components/lesson-blocks.tsx`: knowledge-check, try-this, and scenario
   cards now share a consistent `min-h-[220px]` so they don't look wildly

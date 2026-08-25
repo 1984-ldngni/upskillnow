@@ -166,17 +166,17 @@ export default function LessonDetailPage() {
           </div>
         </div>
       ) : (
-        <div className={`mt-6 grid gap-6 ${lesson.imageUrl ? "md:grid-cols-2 md:items-start" : ""}`}>
+        <div className={`mt-6 grid gap-6 ${lesson.imageUrl ? "md:grid-cols-2 md:items-stretch" : ""}`}>
           {lesson.imageUrl && (
-            <div className="overflow-hidden rounded-md border-2 border-black shadow-brutal md:sticky md:top-6">
+            <div className="overflow-y-auto rounded-md border-2 border-black shadow-brutal md:h-[640px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={lesson.imageUrl} alt={`Key takeaways from ${lesson.title}`} className="w-full" />
             </div>
           )}
 
-          <div className="rounded-md border-2 border-black bg-card p-6 shadow-brutal">
-            <Tabs defaultValue="text">
-              <TabsList>
+          <div className={`flex flex-col rounded-md border-2 border-black bg-card p-6 shadow-brutal ${lesson.imageUrl ? "md:h-[640px]" : ""}`}>
+            <Tabs defaultValue="text" className="flex min-h-0 flex-1 flex-col">
+              <TabsList className="shrink-0">
                 <TabsTrigger value="text">
                   <FileText className="h-4 w-4 text-primary" />
                   Read
@@ -191,7 +191,7 @@ export default function LessonDetailPage() {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="relative z-10 -mt-[2px] rounded-b-md rounded-tr-md pt-6">
+              <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pt-6">
                 <TabsContent value="text">
                   {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
                     <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} />

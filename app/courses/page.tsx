@@ -6,8 +6,10 @@ import { AppShell } from "@/components/app-shell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getCourses, getCourseDurationsMinutes, type Course } from "@/lib/data";
 import { difficultyVariant } from "@/lib/badge-colors";
+import { Search, X } from "lucide-react";
 
 // Fixed order so filters don't jump around as more levels get added.
 const LEVEL_ORDER = ["Beginner", "Intermediate", "Advanced", "All Levels"];
@@ -28,6 +30,7 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [activeLevel, setActiveLevel] = useState<string | null>(null);
   const [activeDuration, setActiveDuration] = useState<DurationBucket | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     getCourses().then((c) => {
@@ -50,9 +53,21 @@ export default function CoursesPage() {
 
   const bucketOf = (c: Course) => bucketFor(durations[c.id] ?? 0);
 
+  // Keyword search: every word in the query must appear somewhere in the
+  // course's title, description, or level — so "cursor code" and "code
+  // cursor" both match "AI-Assisted Coding with Cursor", and a single word
+  // behaves as a plain substring/exact match.
+  const queryWords = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const matchesQuery = (c: Course) => {
+    if (queryWords.length === 0) return true;
+    const haystack = `${c.title} ${c.description} ${c.level}`.toLowerCase();
+    return queryWords.every((word) => haystack.includes(word));
+  };
+
   const visibleCourses = courses.filter((c) => {
     if (activeLevel && c.level !== activeLevel) return false;
     if (activeDuration && bucketOf(c) !== activeDuration) return false;
+    if (!matchesQuery(c)) return false;
     return true;
   });
 
@@ -66,6 +81,26 @@ export default function CoursesPage() {
           <Link href="/paths">
             <Button variant="outline" size="sm">Browse Learning Paths</Button>
           </Link>
+        </div>
+
+        <div className="relative mt-6 max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search courses by tool, topic, or keyword…"
+            className="pl-9 pr-9"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="mt-6 space-y-3">
@@ -125,7 +160,11 @@ export default function CoursesPage() {
               </Card>
             ))}
             {visibleCourses.length === 0 && (
-              <p className="text-sm text-muted-foreground">No courses match these filters yet.</p>
+              <p className="text-sm text-muted-foreground">
+                {query
+                  ? `No courses match "${query}". Try a different keyword or clear your filters.`
+                  : "No courses match these filters yet."}
+              </p>
             )}
           </div>
         )}

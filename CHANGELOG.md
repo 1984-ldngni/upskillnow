@@ -2,6 +2,12 @@
 
 All notable changes to UpSkillNow are logged here, most recent first.
 
+## 2026-08-25 — Fixed unreadable lesson-row hover in dark mode
+- The mustard hover on course lesson rows used the theme's default text
+  color, which is near-white in dark mode — unreadable against the light
+  amber background. Lesson title, duration, and lock icon now force black
+  text on hover regardless of theme (`group-hover:text-black`).
+
 ## 2026-08-25 — Interactive lesson content (Read tab)
 - Migration `add_lesson_content_blocks`: new `lessons.content_blocks` jsonb
   column — an array of typed blocks (paragraph, list, reveal, knowledge

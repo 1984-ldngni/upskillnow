@@ -154,11 +154,11 @@ export default function CourseLessonPage() {
           {lessons.map((lesson, i) => {
             const complete = completedIds.has(lesson.id);
             return (
-              <Card key={lesson.id} className="transition-colors hover:bg-amber-300">
+              <Card key={lesson.id} className="group transition-colors hover:bg-amber-300">
                 <CardHeader className="flex-row items-center justify-between space-y-0 p-4">
                   <div className="flex items-center gap-3">
                     {lesson.isPremium && !hasPremiumAccess ? (
-                      <Lock className="h-5 w-5 text-muted-foreground" />
+                      <Lock className="h-5 w-5 text-muted-foreground group-hover:text-black" />
                     ) : complete ? (
                       <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                     ) : (
@@ -166,10 +166,10 @@ export default function CourseLessonPage() {
                     )}
                     <Link href={`/courses/${course.slug}/lessons/${lesson.id}`} className="hover:underline">
                       <div className="flex items-center gap-2">
-                        <CardTitle className="text-sm">Lesson {i + 1}: {lesson.title}</CardTitle>
+                        <CardTitle className="text-sm group-hover:text-black">Lesson {i + 1}: {lesson.title}</CardTitle>
                         {lesson.isPremium && <Badge variant="purple">Pro</Badge>}
                       </div>
-                      <p className="text-xs text-muted-foreground">{lesson.duration} micro-lesson</p>
+                      <p className="text-xs text-muted-foreground group-hover:text-black/70">{lesson.duration} micro-lesson</p>
                     </Link>
                   </div>
                   {lesson.isPremium && !hasPremiumAccess ? (

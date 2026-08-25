@@ -90,7 +90,7 @@ const QUESTIONS: QuizQuestion[] = [
     ],
   },
   {
-    question: "What's your longer-term goal as a VA?",
+    question: "What's your longer-term career goal?",
     options: [
       { label: "Be the go-to person for research, scheduling, and communication", traits: { writing: 1, productivity: 2 } },
       { label: "Build and offer automation systems as a service", traits: { automation: 2 } },

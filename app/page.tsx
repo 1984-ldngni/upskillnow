@@ -53,9 +53,9 @@ export default async function LandingPage() {
       <SiteHeader />
       <main className="flex-1">
         <section className="mx-auto max-w-6xl px-6 py-24 text-center">
-          <Badge variant="accent" className="mb-4">For Virtual Assistants & Professionals</Badge>
+          <Badge variant="accent" className="mb-4">For Every Career Stage</Badge>
           <h1 className="font-heading text-4xl font-black tracking-tight sm:text-6xl">
-            Master the AI tools your clients already expect you to know
+            Master the AI tools your job already expects you to know
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             UpSkillNow curates and teaches the AI and automation tools professionals use across

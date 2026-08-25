@@ -51,7 +51,7 @@ async function buildCatalogSummary(): Promise<string> {
   return `TOOL DIRECTORY (${tools?.length ?? 0} tools):\n${toolLines}\n\nCOURSES (${courses?.length ?? 0}):\n${courseLines}\n\nLEARNING PATHS (${paths?.length ?? 0}):\n${pathLines}`;
 }
 
-const SYSTEM_PROMPT_BASE = `You are the "Ask us" support assistant on UpSkillNow, a site that teaches Virtual Assistants and professionals how to use AI and automation tools through short courses and Learning Paths.
+const SYSTEM_PROMPT_BASE = `You are the "Ask us" support assistant on UpSkillNow, a site that teaches professionals at any career stage how to use AI and automation tools through short courses and Learning Paths.
 
 Pricing (also shown on the site's pricing section): Free plan ($0/₱0, one starter course), Pro ($9/mo or ₱495/mo, full course library + quizzes), Team ($24/mo or ₱1,495/mo, for 2-4 seats with the 4th seat free). USD is shown for international visitors, PHP for the Philippines.
 

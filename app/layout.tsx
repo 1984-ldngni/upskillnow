@@ -26,7 +26,7 @@ const THEME_INIT_SCRIPT = `
 // network access, or self-host the font files instead.
 
 export const metadata: Metadata = {
-  title: "UpSkillNow — AI & Automation Skills for Virtual Assistants",
+  title: "UpSkillNow — AI & Automation Skills for Every Career Stage",
   description:
     "Learn the AI and automation tools professionals actually use, organized by industry and skill level.",
 };

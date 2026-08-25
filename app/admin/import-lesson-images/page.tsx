@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 // One-off admin tool: pulls the freshly-generated Canva infographic exports
-// for the "Claude for Virtual Assistants" pilot course into permanent
+// for the "Claude Essentials" pilot course into permanent
 // Supabase Storage and attaches them to their lessons. Canva's export URLs
 // are short-lived signed links, so this has to run once, soon after
 // generation — not meant to be a permanent fixture of the admin area.

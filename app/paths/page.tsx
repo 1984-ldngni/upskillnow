@@ -41,7 +41,7 @@ export default function PathsPage() {
           <div>
             <h1 className="font-heading text-3xl font-black">Learning Paths</h1>
             <p className="mt-2 text-muted-foreground">
-              Themed tracks that bundle several courses toward one VA specialization.
+              Themed tracks that bundle several courses toward one career specialization.
             </p>
           </div>
           <Link href="/find-your-path">

@@ -270,7 +270,7 @@ export default function LessonDetailPage() {
                 )}
               </div>
 
-              <div className="relative z-10 -mt-[2px] min-h-0 flex-1 overflow-y-auto rounded-b-md rounded-tr-md pr-3 pt-6">
+              <div className="relative mt-2 min-h-0 flex-1 overflow-y-auto rounded-b-md pr-3 pt-4">
                 <TabsContent value="text">
                   {lesson.contentBlocks && lesson.contentBlocks.length > 0 ? (
                     <LessonBlocks blocks={lesson.contentBlocks as LessonBlock[]} activeWordIndex={ttsPlaying ? ttsActiveIndex : undefined} />

@@ -6,7 +6,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 // components/lesson-blocks) so this module has no dependency on that file —
 // lesson-blocks.tsx imports splitIntoWords from here, so importing the other
 // direction would create a cycle.
-type ReadableBlock = { type: "paragraph"; text: string } | { type: "list"; items: string[] } | { type: string };
+type ReadableBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] }
+  | { type: "reveal"; prompt: string; content: string }
+  | { type: string };
 
 // Free, zero-setup "Listen" feature built on the browser's native
 // speechSynthesis API — no TTS provider, no API key, no per-character cost.
@@ -24,10 +28,12 @@ export function splitIntoWords(text: string): string[] {
 }
 
 // Flattens a lesson's readable narrative into a single ordered word list.
-// Only paragraph/list content is narrated — interactive blocks (reveal,
-// knowledge_check, try_this, scenario) are skipped since they're meant to be
-// engaged with, not passively read aloud. When a lesson has no content_blocks
-// yet, falls back to body_text (same paragraph/bullet convention as LessonBody).
+// Paragraph/list/reveal content is narrated; reveal cards are read as
+// prompt-then-content (matching the auto-expand order in LessonBlocks' Reveal
+// component). knowledge_check/try_this/scenario stay excluded — those are
+// meant to be actively worked through, not read at the user passively.
+// When a lesson has no content_blocks yet, falls back to body_text (same
+// paragraph/bullet convention as LessonBody).
 export function getReadableWords(blocks: ReadableBlock[] | null | undefined, bodyText: string | null | undefined): string[] {
   if (blocks && blocks.length > 0) {
     const words: string[] = [];
@@ -36,8 +42,11 @@ export function getReadableWords(blocks: ReadableBlock[] | null | undefined, bod
         words.push(...splitIntoWords(block.text));
       } else if (block.type === "list" && "items" in block) {
         for (const item of block.items) words.push(...splitIntoWords(item));
+      } else if (block.type === "reveal" && "prompt" in block && "content" in block) {
+        words.push(...splitIntoWords(block.prompt));
+        words.push(...splitIntoWords(block.content));
       }
-      // reveal / knowledge_check / try_this / scenario: intentionally skipped.
+      // knowledge_check / try_this / scenario: intentionally skipped.
     }
     return words;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { splitIntoWords } from "@/lib/read-aloud";
 
@@ -32,20 +32,77 @@ export type LessonBlock =
   | TryThisBlock
   | ScenarioBlock;
 
-function Reveal({ block }: { block: RevealBlock }) {
-  const [open, setOpen] = useState(false);
+// Renders `words` (already split) as spans starting at `startIndex`, so
+// indices align with the shared global word list computed by
+// getReadableWords — used instead of <ReadableText> here because Reveal
+// needs to know its own word range (promptStart/blockEnd) synchronously, up
+// front, to decide whether to auto-expand — reading counter.current *after*
+// handing a child <ReadableText> its words wouldn't reflect that child's
+// increments yet, since React doesn't actually render children until this
+// component's own function body has finished returning its JSX.
+function WordSpans({ words, startIndex, activeWordIndex, keyPrefix }: { words: string[]; startIndex: number; activeWordIndex?: number; keyPrefix: string }) {
+  return (
+    <>
+      {words.map((w, i) => {
+        const idx = startIndex + i;
+        const active = activeWordIndex !== undefined && idx === activeWordIndex;
+        return (
+          <span key={`${keyPrefix}-${i}`} className={active ? "rounded bg-amber-200 text-black" : undefined}>
+            {w}
+            {i < words.length - 1 ? " " : ""}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function Reveal({
+  block,
+  counter,
+  activeWordIndex,
+  keyPrefix,
+}: {
+  block: RevealBlock;
+  counter: { current: number };
+  activeWordIndex?: number;
+  keyPrefix: string;
+}) {
+  const [manualOpen, setManualOpen] = useState(false);
+
+  // Computed directly (not via a shared counter incremented inside child
+  // renders) so the range is known before deciding whether to auto-expand.
+  const promptWords = splitIntoWords(block.prompt);
+  const contentWords = splitIntoWords(block.content);
+  const promptStart = counter.current;
+  const contentStart = promptStart + promptWords.length;
+  const blockEnd = contentStart + contentWords.length;
+  counter.current = blockEnd;
+
+  const activeInThisBlock =
+    activeWordIndex !== undefined && activeWordIndex >= promptStart && activeWordIndex < blockEnd;
+
+  // Listen auto-expands this card as narration reaches it, and leaves it
+  // open afterward (matches how a reveal would look once you've read it —
+  // snapping shut again as narration moves on would be jarring).
+  useEffect(() => {
+    if (activeInThisBlock) setManualOpen(true);
+  }, [activeInThisBlock]);
+
   return (
     <div className="overflow-hidden rounded-md border-2 border-black">
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setManualOpen((v) => !v)}
         className="flex w-full items-center justify-between gap-2 bg-secondary px-4 py-3 text-left text-sm font-bold"
       >
-        {block.prompt}
-        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span>
+          <WordSpans words={promptWords} startIndex={promptStart} activeWordIndex={activeWordIndex} keyPrefix={`${keyPrefix}-prompt`} />
+        </span>
+        <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${manualOpen ? "rotate-180" : ""}`} />
       </button>
-      {open && (
+      {manualOpen && (
         <div className="max-h-56 overflow-y-auto border-t-2 border-black bg-card px-4 py-3 text-sm leading-relaxed">
-          {block.content}
+          <WordSpans words={contentWords} startIndex={contentStart} activeWordIndex={activeWordIndex} keyPrefix={`${keyPrefix}-content`} />
         </div>
       )}
     </div>
@@ -214,7 +271,7 @@ export function LessonBlocks({ blocks, activeWordIndex }: { blocks: LessonBlock[
               </ul>
             );
           case "reveal":
-            return <Reveal key={i} block={block} />;
+            return <Reveal key={i} block={block} counter={counter} activeWordIndex={activeWordIndex} keyPrefix={`r${i}`} />;
           case "knowledge_check":
             return <KnowledgeCheck key={i} block={block} />;
           case "try_this":
